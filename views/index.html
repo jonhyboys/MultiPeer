@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+    <article>
+        <section id="inicio">
+            <div>
+                <div>
+                    <div>
+                        <label>Nombre de sala:</label>
+                        <input type="text" id="txt-nombre-sala" value="Uno" />
+                    </div>
+                    <div>
+                        <label>Nombre de usuario:</label>
+                        <input type="text" id="txt-nombre-usuario" value="Jonhy" />
+                    </div>
+                    <button id="btn-conectar">Conectar</button>
+                    <p id="msj-error-conectar" class="hide"></p>
+                </div>
+            </div>
+        </section>
+        <section id="principal" class="hide">
+            <header>
+                <h1>WebRTC</h1>
+                <ul>
+                    <li id="li-nombre-sala">Nombre Sala</li>
+                    <li id="li-usuarios-conectados">
+                        <label id="lbl-usuarios-conectados" class="clicable">Usuarios Conectados</label>
+                        <ul id="lista-usuarios-conectados"></ul>
+                    </li>
+                    <li id="li-nombre-usuario">Usuario</li>
+                    <li id="li-desconectar" class="clicable">Desconectar</li>
+                </ul>
+            </header>
+            <div id="contenedor-videos">
+                <video id="video-local" src=""></video>
+                <video src=""></video>
+                <video src=""></video>
+                <video src=""></video>
+                <div id="contenedor-botones-video">
+                    <button>Colgar</button>
+                    <button>Apagar/Encender Video</button>
+                    <button>Apagar/Encender Audio></button>
+                </div>
+            </div>
+            <div id="contenedor-chat">
+                <ul id="lista-mensajes"></ul>
+                <div id="contenedor-controles-chat">
+                    <input type="text" autocomplete="off" id="txt-mensaje-enviar" />
+                    <button id="btn-enviar">Enviar</button>
+                </div>
+            </div>
+        </section>
+    </article>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+
+</html>

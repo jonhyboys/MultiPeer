@@ -1,0 +1,27 @@
+{
+    "name": "prueba",
+    "version": "0.0.1",
+    "description": "Prueba en OpenShift 3",
+    "main": "server.js",
+    "dependencies": {
+        "ejs": "^2.4.1",
+        "express": "^4.13.4",
+        "morgan": "^1.7.0",
+        "object-assign": "4.1.0",
+        "socket.io": "^2.1.1"
+    },
+    "engine": {
+        "node": "*",
+        "npm": "*"
+    },
+    "scripts": {
+        "start": "node server.js",
+        "test": "IP=0.0.0.0 PORT=3030 mocha --timeout 5000 tests/*_test.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/jonhyboys/Prueba.git"
+    },
+    "author": "JonhyBoys",
+    "license": "CC-BY-1.0"
+}

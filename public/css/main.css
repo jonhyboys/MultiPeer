@@ -1,0 +1,145 @@
+html,
+body,
+article {
+    height: 100%;
+}
+
+article {
+    font: normal 12px Tahoma;
+}
+
+#inicio {
+    display: table;
+    height: 100%;
+    margin: auto;
+}
+
+#inicio.hide {
+    display: none;
+}
+
+#inicio>div {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+#inicio>div>div {
+    background: #CBCBCB;
+    border-radius: 5px;
+    padding: 20px;
+    min-width: 400px;
+}
+
+#inicio label,
+#inicio input {
+    display: block;
+    margin: 5px 0;
+    width: 100%;
+}
+
+#principal {
+    display: table;
+    width: 100%;
+}
+
+#principal.hide {
+    display: none;
+}
+
+header {
+    background: #1C32B1;
+    color: #FFF;
+    display: table-caption;
+    margin-bottom: 30px;
+    padding: 20px;
+    position: relative;
+}
+
+header h1 {
+    font-size: 16px;
+}
+
+header>ul {
+    position: absolute;
+    right: 0;
+    top: 20px;
+}
+
+header>ul>li {
+    float: left;
+    margin: 0 10px;
+}
+
+#li-usuarios-conectados {
+    position: relative;
+}
+
+#lista-usuarios-conectados {
+    background: #FFF;
+    color: black;
+    height: 0;
+    left: 0;
+    min-width: 135px;
+    overflow: hidden;
+    position: absolute;
+    top: 20px;
+    transition: 1s;
+}
+
+#lista-usuarios-conectados.visible {
+    height: 60px;
+}
+
+#contenedor-videos,
+#contenedor-chat {
+    height: 500px;
+}
+
+#contenedor-videos {
+    /*border: 1px solid #1C32B1;*/
+    display: table-cell;
+    padding: 0 10px;
+    vertical-align: bottom;
+}
+
+video {
+    background: #1C32B1;
+    height: 210px;
+    width: 49%;
+}
+
+#contenedor-botones-video {
+    height: 50px;
+    line-height: 50px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+#contenedor-chat {
+    display: table-cell;
+    padding: 0 10px;
+    vertical-align: bottom;
+}
+
+#contenedor-chat #lista-mensajes {
+    background: #CBCBCB;
+    height: 424px;
+    padding: 10px;
+}
+
+#contenedor-controles-chat {
+    height: 50px;
+    margin-top: 10px;
+}
+
+button {
+    cursor: pointer;
+}
+
+.hide {
+    display: none;
+}
+
+.clicable {
+    cursor: pointer;
+}
