@@ -29,8 +29,8 @@ app.use(function(err, req, res, next) {
 server.listen(port, ip);
 console.log('Server running on http://%s:%s', ip, port);
 
-var _usuarios_conectados = [],
-    _ids_conectados = [];
+var _usuarios_conectados = new Array(),
+    _ids_conectados = new Array();
 
 io.on('connection', function(socket) {
     socket.on('disconnect', function() {
@@ -45,8 +45,8 @@ io.on('connection', function(socket) {
     socket.on('crear_unir_sala', function(datos) {
         var usuarios_en_la_sala = io.sockets.adapter.rooms[datos.nombre_sala];
         var numero_usuarios = usuarios_en_la_sala ? Object.keys(usuarios_en_la_sala.sockets).length : 0;
-        console.clear();
-        console.log(numero_usuarios);
+        //console.clear();
+        //console.log(numero_usuarios);
 
         if (numero_usuarios == 0) {
             socket.join(datos.nombre_sala); //Crear la sala
@@ -54,8 +54,8 @@ io.on('connection', function(socket) {
                 //usuarios_conectados: _usuarios_conectados[datos.nombre_sala],
                 id: socket.id
             }); //Avisar al usuario que ha creado la sala
-            _usuarios_conectados.push(datos.nombre_sala);
-            _ids_conectados.push(datos.nombre_sala);
+            //_usuarios_conectados.push(datos.nombre_sala);
+            //_ids_conectados.push(datos.nombre_sala);
             _ids_conectados[datos.nombre_sala] = [socket.id];
             _usuarios_conectados[datos.nombre_sala] = [datos.nombre_usuario];
         } else if (numero_usuarios < 4) {
@@ -81,13 +81,13 @@ io.on('connection', function(socket) {
     });
 
     socket.on('candidato', function(datos) {
-        console.log('Reenviando candidato');
-        socket.to(datos.nombre_sala).emit('candidato', datos);
+        console.log('Reenviando candidato a:' + datos.socket_destino);
+        io.to(datos.socket_destino).emit('candidato', datos);
     });
 
     socket.on('descripcion', function(datos) {
-        console.log('Reenviando descripcion');
-        io.to(datos.id_enviar).emit('descripcion', datos);
+        console.log('Reenviando descripcion a:' + datos.socket_destino);
+        io.to(datos.socket_destino).emit('descripcion', datos);
     });
 });
 
