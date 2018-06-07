@@ -1,16 +1,26 @@
+@font-face {
+    font-family: Oswald;
+    src: local("Oswald"), local("Oswald"), url(../fonts/Oswald-Regular.ttf);
+    font-weight: normal;
+}
+
 html,
 body,
-article {
+article,
+section,
+#inicio>div {
     height: 100%;
+    min-height: 100%;
 }
 
 article {
-    font: normal 12px Tahoma;
+    background: #444349;
+    color: #C6CACD;
+    font: normal 16px Oswald;
 }
 
 #inicio {
     display: table;
-    height: 100%;
     margin: auto;
 }
 
@@ -23,51 +33,85 @@ article {
     vertical-align: middle;
 }
 
-#inicio>div>div {
-    background: #CBCBCB;
-    border-radius: 5px;
-    padding: 20px;
-    min-width: 400px;
+form {
+    background: #2D3134;
+    border-radius: 10px;
+    min-width: 281px;
+    padding: 30px 20px;
 }
 
-#inicio label,
-#inicio input {
+label,
+input {
     display: block;
-    margin: 5px 0;
     width: 100%;
+}
+
+label {
+    font-size: 16px;
+    margin: 16px 0;
+}
+
+input,
+button {
+    background: #74797C;
+    border: none;
+    border-radius: 4px;
+    color: #B4B6B7;
+    font-family: Oswald;
+    font-size: 16px;
+    padding: 10px;
+}
+
+input {
+    font-size: 14px;
+    margin-bottom: 5px;
+    outline: none;
+    padding: 10px 0;
+    text-indent: 10px;
+}
+
+button {
+    cursor: pointer;
+    margin: 10px 0 5px 0;
+}
+
+button:hover {
+    background: #4dc47d;
+    color: #F1F1F1;
+}
+
+form p {
+    color: #41F3BB;
+    font-size: 12px;
 }
 
 #principal {
-    display: table;
-    width: 100%;
-}
-
-#principal.hide {
-    display: none;
+    overflow: auto;
 }
 
 header {
-    background: #1C32B1;
-    color: #FFF;
-    display: table-caption;
+    background: #74797C;
+    height: 60px;
+    line-height: 60px;
     margin-bottom: 30px;
-    padding: 20px;
     position: relative;
 }
 
-header h1 {
+header>h1 {
+    float: left;
     font-size: 16px;
+    margin-left: 20px;
 }
 
 header>ul {
-    position: absolute;
-    right: 0;
-    top: 20px;
+    float: right;
+    font-size: 16px;
+    margin-right: 20px;
 }
 
 header>ul>li {
-    float: left;
-    margin: 0 10px;
+    display: inline-block;
+    margin: 0 5px;
 }
 
 #li-usuarios-conectados {
@@ -75,65 +119,71 @@ header>ul>li {
 }
 
 #lista-usuarios-conectados {
-    background: #FFF;
-    color: black;
+    background: #74797C;
     height: 0;
-    left: 0;
-    min-width: 135px;
+    left: -10px;
+    min-width: 90px;
     overflow: hidden;
     position: absolute;
-    top: 20px;
-    transition: 1s;
+    transition: .3s;
 }
 
 #lista-usuarios-conectados.visible {
-    height: 60px;
+    height: 180px;
 }
 
-#contenedor-videos,
-#contenedor-chat {
-    height: 500px;
+#lista-usuarios-conectados li {
+    text-indent: 10px;
 }
 
 #contenedor-videos {
-    /*border: 1px solid #1C32B1;*/
-    display: table-cell;
-    padding: 0 10px;
-    vertical-align: bottom;
+    float: left;
+    overflow: hidden;
+    width: 50%;
 }
 
 video {
-    background: #1C32B1;
-    height: 210px;
+    border: 1px solid red;
     width: 49%;
 }
 
+#principal button {
+    font-size: 12px;
+    margin: 0 3px;
+    padding: 3px;
+}
+
 #contenedor-botones-video {
-    height: 50px;
-    line-height: 50px;
-    margin-top: 10px;
-    text-align: center;
+    display: table;
+    margin: auto;
 }
 
 #contenedor-chat {
-    display: table-cell;
-    padding: 0 10px;
-    vertical-align: bottom;
+    float: right;
+    width: 49%;
 }
 
-#contenedor-chat #lista-mensajes {
-    background: #CBCBCB;
-    height: 424px;
-    padding: 10px;
+#contenedor-chat ul {
+    font-size: 12px;
+    height: 150px;
+    overflow-y: auto;
+    overflow-wrap: break-word;
 }
 
-#contenedor-controles-chat {
-    height: 50px;
-    margin-top: 10px;
+::-webkit-scrollbar {
+    width: 4px;
 }
 
-button {
-    cursor: pointer;
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .hide {
@@ -142,4 +192,58 @@ button {
 
 .clicable {
     cursor: pointer;
+}
+
+@media only screen and (max-width: 1350px) {
+    #contenedor-videos {
+        width: 75%;
+    }
+    #contenedor-chat {
+        width: 24%;
+    }
+}
+
+@media only screen and (max-width: 1024px) {
+    header>ul {
+        font-size: 15px;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    header>ul {
+        font-size: 11px;
+    }
+    #contenedor-videos {
+        width: 50%;
+    }
+    video {
+        width: 48%;
+    }
+    #contenedor-chat {
+        width: 49%;
+    }
+}
+
+@media only screen and (max-width: 414px) {
+    form {
+        min-width: 260px;
+    }
+    header>ul {
+        font-size: 12px;
+    }
+    header>ul>li {
+        margin: 0 1px;
+    }
+    #contenedor-videos {
+        float: none;
+        width: 100%;
+    }
+    video {
+        width: 48%;
+    }
+    #contenedor-chat {
+        float: none;
+        margin: auto;
+        width: 98%;
+    }
 }
