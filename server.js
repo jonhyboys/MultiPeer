@@ -45,17 +45,10 @@ io.on('connection', function(socket) {
     socket.on('crear_unir_sala', function(datos) {
         var usuarios_en_la_sala = io.sockets.adapter.rooms[datos.nombre_sala];
         var numero_usuarios = usuarios_en_la_sala ? Object.keys(usuarios_en_la_sala.sockets).length : 0;
-        //console.clear();
-        //console.log(numero_usuarios);
 
         if (numero_usuarios == 0) {
             socket.join(datos.nombre_sala); //Crear la sala
-            socket.emit('sala_creada', {
-                //usuarios_conectados: _usuarios_conectados[datos.nombre_sala],
-                id: socket.id
-            }); //Avisar al usuario que ha creado la sala
-            //_usuarios_conectados.push(datos.nombre_sala);
-            //_ids_conectados.push(datos.nombre_sala);
+            socket.emit('sala_creada', { id: socket.id }); //Avisar al usuario que ha creado la sala
             _ids_conectados[datos.nombre_sala] = [socket.id];
             _usuarios_conectados[datos.nombre_sala] = [datos.nombre_usuario];
         } else if (numero_usuarios < 4) {
@@ -81,13 +74,25 @@ io.on('connection', function(socket) {
     });
 
     socket.on('candidato', function(datos) {
-        console.log('Reenviando candidato a:' + datos.socket_destino);
         io.to(datos.socket_destino).emit('candidato', datos);
     });
 
     socket.on('descripcion', function(datos) {
-        console.log('Reenviando descripcion a:' + datos.socket_destino);
         io.to(datos.socket_destino).emit('descripcion', datos);
+    });
+
+    socket.on('desconectar', function(datos) {
+        var x;
+        if (_ids_conectados[datos.nombre_sala] != undefined) {
+            for (x = 0; x < _ids_conectados[datos.nombre_sala].length; x++) {
+                if (_ids_conectados[datos.nombre_sala][x] == datos.id) {
+                    _usuarios_conectados[datos.nombre_sala].splice(x, 1);
+                    _ids_conectados[datos.nombre_sala].splice(x, 1);
+                    break;
+                }
+            }
+        }
+        socket.to(datos.nombre_sala).emit('desconectar', datos);
     });
 });
 

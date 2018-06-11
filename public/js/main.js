@@ -11,7 +11,7 @@
     };
     var pcs = new Array(),
         pc_iniciador,
-        mi_socket_id,
+        mi_socket_id = 0,
         glob_local_stream,
         glob_es_iniciador = false,
         socket;
@@ -86,6 +86,8 @@
         $('#btn-video-control').click(function() { glob_local_stream.getVideoTracks()[0].enabled = !(glob_local_stream.getVideoTracks()[0].enabled); });
         $('#btn-audio-control').click(function() { glob_local_stream.getAudioTracks()[0].enabled = !(glob_local_stream.getAudioTracks()[0].enabled); });
 
+        $('#btn-colgar').click(function() { location.reload(); });
+
         //Cuando el servidor indica que se creó la sala, pasamos a la siguiente vista
         socket.on('sala_creada', function(datos) {
             $('#inicio').toggleClass('hide');
@@ -102,7 +104,8 @@
             mi_socket_id = datos.id;
             var x;
             for (x = 0; x < datos.ids_conectados.length; x++) {
-                $('video:not([id])').eq(0).attr('id', datos.ids_conectados[x]);
+                $('#lista-usuarios-conectados').append('<li data-nombre="' + datos.usuarios_conectados[x] + '">' + datos.usuarios_conectados[x] + '</li>');
+                $('<video id="' + datos.ids_conectados[x] + '" autoplay src=""></video>').insertBefore('#contenedor-botones-video');
                 pcs[datos.ids_conectados[x]] = new conexion(datos.ids_conectados[x], true);
             }
         });
@@ -119,9 +122,9 @@
         //Agregar nuevos usuarios conectados
         socket.on('usuario_agregado', function(datos) {
             //Agregar usuario nuevo a la lista de usuarios conectados
-            $('#lista-usuarios-conectados').append('<li>' + datos.nuevo_usuario + '</li>');
+            $('#lista-usuarios-conectados').append('<li data-nombre=' + datos.nuevo_usuario + '>' + datos.nuevo_usuario + '</li>');
             //Crear conexión con el nuevo usuario
-            $('video:not([id])').eq(0).attr('id', datos.nuevo_id);
+            $('<video id="' + datos.nuevo_id + '" autoplay src=""></video>').insertBefore('#contenedor-botones-video');
             if (glob_es_iniciador && pc_iniciador != undefined) {
                 glob_es_iniciador = false;
                 pc_iniciador.socket_id_destino = datos.nuevo_id;
@@ -154,6 +157,23 @@
             console.log('Candidato recibido de: ' + datos.socket_origen);
             pcs[datos.socket_origen].cliente.addIceCandidate(datos.candidato);
         });
+
+        socket.on('desconectar', function(datos) {
+            if (pcs[datos.id] != undefined) {
+                delete pcs[datos.id];
+                $('#' + datos.id).remove();
+                $('#lista-usuarios-conectados li[data-nombre="' + datos.nombre + '"]').remove();
+                establecer_tamano_chat();
+            }
+        });
+
+        window.addEventListener('beforeunload', function() {
+            socket.emit('desconectar', {
+                nombre_sala: glob_nombre_sala,
+                id: mi_socket_id,
+                nombre: glob_nombre_usuario
+            });
+        }, false);
     });
 
     function establecer_tamano_chat() {
@@ -167,6 +187,7 @@
 
     function mostrar_video_local(objeto, ofertar, stream) {
         var video_local = document.getElementById('video-local');
+        stream.getAudioTracks()[0].enabled = false;
         video_local.srcObject = stream;
         glob_local_stream = stream;
         video_local.onloadeddata = establecer_tamano_chat;
@@ -232,8 +253,4 @@
 
     function crear_respuesta(objeto, evt) { return objeto.cliente.createAnswer(); }
 
-    /*window.onbeforeunload = function() {
-        socket.onclose = function() {};
-        socket.close();
-    };*/
 })();
