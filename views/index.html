@@ -15,12 +15,16 @@
         <section id="inicio">
             <div>
                 <form>
-                    <label>Nombre de sala:</label>
-                    <input type="text" id="txt-nombre-sala" value="Uno" />
-                    <p id="msj-error-sala" class="hide">Debe escribir el nombre de la sala...</p>
-                    <label>Nombre de usuario:</label>
-                    <input type="text" id="txt-nombre-usuario" value="Jonhy" />
-                    <p id="msj-error-usuario" class="hide">Debe escribir el nombre de usuario...</p>
+                    <h1>WebRTC App</h1>
+                    <p>Aplicaci&oacute;n para hacer videollamadas y chat de texto en grupo, para un m&aacute;ximo de 4 usuarios.</p>
+                    <div>
+                        <label id="lbl-nombre-sala">Sala:</label>
+                        <input type="text" id="txt-nombre-sala" value="" autocomplete="off" />
+                    </div>
+                    <div>
+                        <label id="lbl-nombre-usuario">Usuario:</label>
+                        <input type="text" id="txt-nombre-usuario" value="" autocomplete="off" />
+                    </div>
                     <button id="btn-conectar">Conectar</button>
                     <p class="hide" id="msj-sala-llena">Lo sentimos, la sala está llena...</p>
                     <p class="hide" id="msj-usuario-existe">Lo sentimos, ya existe otro usuario con el mismo nombre en la sala...</p>
@@ -42,12 +46,15 @@
             <div id="contenedor-videos">
                 <video autoplay id="video-local" src=""></video>
                 <div id="contenedor-botones-video">
-                    <button id="btn-colgar">Colgar</button>
-                    <button id="btn-video-control">Apagar/Encender Video</button>
-                    <button id="btn-audio-control">Apagar/Encender Audio></button>
+                    <div>
+                        <button id="btn-colgar">Colgar</button>
+                        <button id="btn-video-control">Apagar/Encender Video</button>
+                        <button id="btn-audio-control">Apagar/Encender Audio></button>
+                    </div>
                 </div>
             </div>
-            <div id="contenedor-chat" class="hide">
+            <div id="contenedor-chat">
+                <h1>Mensajes</h1>
                 <ul id="lista-mensajes"></ul>
                 <div id="contenedor-controles-chat">
                     <input type="text" autocomplete="off" id="txt-mensaje-enviar" />

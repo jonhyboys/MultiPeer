@@ -14,12 +14,13 @@ section,
 }
 
 article {
-    background: #444349;
-    color: #C6CACD;
-    font: normal 16px Oswald;
+    background: #444349 url(../images/fondo.jpg) no-repeat;
+    color: #F3FFFF;
+    font-family: "Open Sans", arial;
 }
 
 #inicio {
+    color: #C6CACD;
     display: table;
     margin: auto;
 }
@@ -34,55 +35,105 @@ article {
 }
 
 form {
-    background: #2D3134;
+    background: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    min-width: 281px;
+    font-weight: 400;
+    width: 281px;
     padding: 30px 20px;
+}
+
+form h1 {
+    color: #0099CC;
+    padding: 40px 0 30px 0;
+    font-size: 30px;
+    text-align: center;
+}
+
+form>p {
+    font-size: 12px;
+    padding-bottom: 30px;
+}
+
+form>div {
+    border-bottom: solid 1px #434d5a;
+    overflow: hidden;
+    position: relative;
 }
 
 label,
 input {
+    color: #FFF;
     display: block;
-    width: 100%;
+    height: 50px;
+    line-height: 57px;
+    text-indent: 10px;
 }
 
 label {
-    font-size: 16px;
-    margin: 16px 0;
+    font-size: 15px;
+}
+
+label.editing {
+    color: #748393;
+    font-size: 13px;
+    float: right;
+    text-align: right;
+    width: 60px;
+}
+
+label.error {
+    visibility: hidden;
 }
 
 input,
 button {
-    background: #74797C;
     border: none;
-    border-radius: 4px;
-    color: #B4B6B7;
-    font-family: Oswald;
-    font-size: 16px;
-    padding: 10px;
 }
 
 input {
-    font-size: 14px;
-    margin-bottom: 5px;
     outline: none;
-    padding: 10px 0;
-    text-indent: 10px;
+    width: 100%;
+}
+
+#inicio input {
+    background: transparent;
+    font-size: 14px;
+    left: 0;
+    position: absolute;
+    top: 0;
+}
+
+input.editing {
+    width: 221px;
+}
+
+input.error {
+    color: #ED5654;
 }
 
 button {
+    background: rgba(0, 0, 0, 0);
+    border: none;
+    border-radius: 15px;
+    color: #0099CC;
     cursor: pointer;
-    margin: 10px 0 5px 0;
+    font-size: 15px;
+    padding: 8px 10px;
 }
 
 button:hover {
-    background: #4dc47d;
+    background: #0099CC;
     color: #F1F1F1;
 }
 
-form p {
+form div p {
     color: #41F3BB;
     font-size: 12px;
+}
+
+#btn-conectar {
+    display: table;
+    margin: 70px auto 30px auto;
 }
 
 #principal {
@@ -90,17 +141,16 @@ form p {
 }
 
 header {
-    background: #74797C;
-    height: 60px;
-    line-height: 60px;
-    margin-bottom: 30px;
+    background: #293740;
+    height: 15vh;
+    line-height: 15vh;
     position: relative;
 }
 
 header>h1 {
     float: left;
-    font-size: 16px;
-    margin-left: 20px;
+    font-size: 30px;
+    margin-left: 50px;
 }
 
 header>ul {
@@ -137,9 +187,11 @@ header>ul>li {
 }
 
 #contenedor-videos {
+    background: #5f6062;
     float: left;
+    height: 85vh;
     overflow: hidden;
-    width: 50%;
+    width: 70vw;
 }
 
 video {
@@ -147,27 +199,60 @@ video {
     width: 49%;
 }
 
-#principal button {
-    font-size: 12px;
-    margin: 0 3px;
-    padding: 3px;
+#contenedor-botones-video {
+    bottom: 20px;
+    position: fixed;
+    width: 100%;
+    z-index: 10;
 }
 
-#contenedor-botones-video {
+#contenedor-botones-video>div {
+    background: #222;
     display: table;
     margin: auto;
 }
 
+#contenedor-botones-video button {
+    margin: 10px;
+}
+
 #contenedor-chat {
+    background: #41F3BB;
     float: right;
-    width: 49%;
+    height: 85vh;
+    width: 30vw;
+}
+
+#contenedor-chat h1 {
+    background: #3F4F57;
+    color: #728A95;
+    height: 8vh;
+    line-height: 8vh;
+    text-align: center;
 }
 
 #contenedor-chat ul {
+    background: #E7E7E7;
     font-size: 12px;
-    height: 150px;
+    height: 65vh;
     overflow-y: auto;
     overflow-wrap: break-word;
+}
+
+#contenedor-controles-chat {
+    background: #FFF;
+    height: 12vh;
+    position: relative;
+}
+
+#contenedor-controles-chat input {
+    color: #000;
+}
+
+#contenedor-controles-chat button {
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 
 ::-webkit-scrollbar {
@@ -194,6 +279,8 @@ video {
     cursor: pointer;
 }
 
+
+/*
 @media only screen and (max-width: 1350px) {
     #contenedor-videos {
         width: 75%;
@@ -246,4 +333,4 @@ video {
         margin: auto;
         width: 98%;
     }
-}
+}*/
