@@ -17,6 +17,7 @@ article {
     background: #444349 url(../images/fondo.jpg) no-repeat;
     color: #F3FFFF;
     font-family: "Open Sans", arial;
+    font-size: 14px;
 }
 
 #inicio {
@@ -35,11 +36,11 @@ article {
 }
 
 form {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(68, 116, 187, 0.1) url(../images/logo_inicio.png) no-repeat center 20px;
+    background-size: 80px;
     border-radius: 10px;
-    font-weight: 400;
     width: 281px;
-    padding: 30px 20px;
+    padding: 85px 20px 30px 20px;
 }
 
 form h1 {
@@ -47,212 +48,223 @@ form h1 {
     padding: 40px 0 30px 0;
     font-size: 30px;
     text-align: center;
+    text-shadow: 0 0 20px #000;
 }
 
 form>p {
     font-size: 12px;
     padding-bottom: 30px;
+    text-shadow: 0 0 20px #000;
 }
 
 form>div {
-    border-bottom: solid 1px #434d5a;
-    overflow: hidden;
+    margin-bottom: 35px;
     position: relative;
 }
 
-label,
-input {
-    color: #FFF;
-    display: block;
-    height: 50px;
-    line-height: 57px;
-    text-indent: 10px;
+form i {
+    position: absolute;
+    top: 8px;
+    left: 8px;
 }
 
-label {
-    font-size: 15px;
+form>div:last-child() {
+    background: red;
 }
 
-label.editing {
-    color: #748393;
-    font-size: 13px;
-    float: right;
-    text-align: right;
-    width: 60px;
-}
-
-label.error {
-    visibility: hidden;
-}
-
-input,
-button {
-    border: none;
-}
-
-input {
-    outline: none;
+form input {
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 5px;
+    padding: 5px 0;
+    text-indent: 30px;
     width: 100%;
 }
 
-#inicio input {
-    background: transparent;
-    font-size: 14px;
-    left: 0;
-    position: absolute;
-    top: 0;
-}
-
-input.editing {
-    width: 221px;
-}
-
-input.error {
-    color: #ED5654;
-}
-
-button {
-    background: rgba(0, 0, 0, 0);
-    border: none;
-    border-radius: 15px;
-    color: #0099CC;
-    cursor: pointer;
-    font-size: 15px;
-    padding: 8px 10px;
-}
-
-button:hover {
-    background: #0099CC;
-    color: #F1F1F1;
+form input:focus {
+    box-shadow: 0 0 15px #CBCBCB;
 }
 
 form div p {
-    color: #41F3BB;
-    font-size: 12px;
+    color: red;
+    visibility: hidden;
+}
+
+form div p.error {
+    visibility: visible;
 }
 
 #btn-conectar {
-    display: table;
-    margin: 70px auto 30px auto;
+    background: #EEF8FE;
+    border-radius: 5px;
+    color: #8D92A4;
+    cursor: pointer;
+    font-weight: bolder;
+    padding: 6px 0;
+    width: 100%;
+}
+
+#btn-conectar:hover {
+    background: #DEDEDE;
+    color: #222;
 }
 
 #principal {
+    background: #5f6062;
     overflow: auto;
 }
 
 header {
-    background: #293740;
-    height: 15vh;
-    line-height: 15vh;
+    background: #222;
+    box-shadow: 0 0 5px #222;
+    height: 6vh;
+    line-height: 6vh;
     position: relative;
 }
 
-header>h1 {
+header h1 {
+    background: url(../images/logo_inicio.png) no-repeat left center;
+    background-size: 30px;
     float: left;
-    font-size: 30px;
-    margin-left: 50px;
+    font-size: 20px;
+    margin-left: 30px;
+    text-indent: 40px;
 }
 
-header>ul {
+header ul {
     float: right;
     font-size: 16px;
     margin-right: 20px;
 }
 
-header>ul>li {
+header li {
     display: inline-block;
     margin: 0 5px;
+}
+
+header li:last-child {
+    cursor: pointer;
+}
+
+header i {
+    margin-right: 5px;
 }
 
 #li-usuarios-conectados {
     position: relative;
 }
 
-#lista-usuarios-conectados {
-    background: #74797C;
-    height: 0;
-    left: -10px;
-    min-width: 90px;
-    overflow: hidden;
-    position: absolute;
-    transition: .3s;
-}
-
-#lista-usuarios-conectados.visible {
-    height: 180px;
-}
-
-#lista-usuarios-conectados li {
-    text-indent: 10px;
-}
-
 #contenedor-videos {
-    background: #5f6062;
     float: left;
     height: 85vh;
     overflow: hidden;
-    width: 70vw;
+    width: 50vw;
 }
 
 video {
-    /*border: 1px solid red;*/
-    width: 49%;
+    width: 20vw;
+    margin: 5vh 2vw;
 }
 
 #contenedor-botones-video {
     bottom: 20px;
     position: fixed;
-    width: 100%;
+    text-align: center;
+    width: 50vw;
     z-index: 10;
 }
 
-#contenedor-botones-video>div {
-    background: #222;
-    display: table;
-    margin: auto;
+#contenedor-botones-video div {
+    display: inline-block;
 }
 
-#contenedor-botones-video button {
-    margin: 10px;
+#contenedor-botones-video i {
+    cursor: pointer;
+    font-size: 35px;
+    margin: 0 10px;
+    user-select: none;
+}
+
+#contenedor-botones-video i:hover {
+    color: #222;
 }
 
 #contenedor-chat {
-    background: #41F3BB;
-    float: right;
-    height: 85vh;
-    width: 30vw;
+    background: #E7E7E7;
+    float: left;
+    height: 94vh;
+    width: 29vw;
 }
 
-#contenedor-chat h1 {
+#contenedor-chat h1,
+#contenedor-usuarios-conectados h1 {
     background: #3F4F57;
     color: #728A95;
-    height: 8vh;
-    line-height: 8vh;
+    height: 5vh;
+    line-height: 5vh;
+    position: relative;
     text-align: center;
 }
 
+#contenedor-chat span {
+    bottom: 2vh;
+    font-size: 32px;
+    position: absolute;
+    right: 15px;
+}
+
 #contenedor-chat ul {
-    background: #E7E7E7;
+    color: #222;
     font-size: 12px;
-    height: 65vh;
+    height: 77vh;
     overflow-y: auto;
     overflow-wrap: break-word;
 }
 
+#contenedor-chat li {
+    margin: 5px 10px;
+}
+
+#contenedor-chat li:first-child {
+    margin-top: 10px;
+}
+
+#contenedor-chat li:last-child {
+    margin-bottom: 10px;
+}
+
+#contenedor-chat strong {
+    font-weight: bolder;
+}
+
 #contenedor-controles-chat {
     background: #FFF;
+    color: #222;
     height: 12vh;
     position: relative;
 }
 
-#contenedor-controles-chat input {
-    color: #000;
+#contenedor-controles-chat textarea {
+    border: none;
+    font-size: 14px;
+    height: 12vh;
+    outline: none;
+    padding: 15px 0;
+    text-indent: 15px;
+    width: 28vw;
 }
 
-#contenedor-controles-chat button {
+#contenedor-controles-chat div {
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 30px;
     position: absolute;
-    right: 0;
-    top: 0;
+    right: 10px;
+    top: 10px;
+}
+
+#contenedor-controles-chat div:hover {
+    color: #0099CC;
 }
 
 ::-webkit-scrollbar {
@@ -275,8 +287,21 @@ video {
     display: none;
 }
 
-.clicable {
-    cursor: pointer;
+#contenedor-usuarios-conectados {
+    background: #E7E7E7;
+    float: right;
+    height: 94vh;
+    width: 20vw;
+}
+
+#contenedor-usuarios-conectados li {
+    background: #222;
+    margin: 5px;
+    padding: 10px 20px;
+}
+
+#contenedor-usuarios-conectados li:first-child {
+    margin-top: 20px;
 }
 
 

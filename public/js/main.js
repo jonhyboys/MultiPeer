@@ -16,21 +16,17 @@
     $(document).ready(function() {
         socket = io();
         $('#txt-nombre-sala, #txt-nombre-usuario').focus(enfocar_caja_texto);
-        $('#txt-nombre-sala, #txt-nombre-usuario').blur(desenfocar_caja_texto);
         $('#btn-conectar').click(function(evt) {
             evt.preventDefault();
             $('#msj-sala-llena').addClass('hide');
-            //$('#txt-nombre-sala, #txt-nombre-usuario').removeClass('is-invalid');
             glob_nombre_sala = $('#txt-nombre-sala').val();
             glob_nombre_usuario = $('#txt-nombre-usuario').val();
-            if (glob_nombre_sala == '' || $('#txt-nombre-sala').hasClass('error')) {
-                $('#txt-nombre-sala').val('Escriba el nombre de la sala').addClass('error');
-                $('#lbl-nombre-sala').addClass('error');
+            if (glob_nombre_sala == '') {
+                $('#p-nombre-sala-error').addClass('error');
                 glob_error++;
             }
-            if (glob_nombre_usuario == '' || $('#txt-nombre-usuario').hasClass('error')) {
-                $('#txt-nombre-usuario').val('Escriba el nombre de usuario').addClass('error');
-                $('#lbl-nombre-usuario').addClass('error')
+            if (glob_nombre_usuario == '') {
+                $('#p-nombre-usuario-error').addClass('error');
                 glob_error++;
             }
             if (glob_error > 0) {
@@ -55,22 +51,26 @@
                 $('#txt-mensaje-enviar').val('');
             }
         });
-        $('#lbl-usuarios-conectados').click(function() {
-            if ($('#lista-usuarios-conectados').html() != '')
-                $('#lista-usuarios-conectados').toggleClass('visible');
-        });
         $('#btn-video-control').click(function() {
+            if ($('#btn-video-control i').hasClass('fa-video'))
+                $('#btn-video-control i').attr('class', 'fa fa-video-slash')
+            else
+                $('#btn-video-control i').attr('class', 'fa fa-video')
             glob_local_stream.getVideoTracks()[0].enabled = !(glob_local_stream.getVideoTracks()[0].enabled);
         });
         $('#btn-audio-control').click(function() {
+            if ($('#btn-audio-control i').hasClass('fa-microphone'))
+                $('#btn-audio-control i').attr('class', 'fa fa-microphone-slash')
+            else
+                $('#btn-audio-control i').attr('class', 'fa fa-microphone')
             glob_local_stream.getAudioTracks()[0].enabled = !(glob_local_stream.getAudioTracks()[0].enabled);
         });
         $('#btn-colgar').click(function() { location.reload(); });
         socket.on('sala_creada', function(datos) {
             $('#inicio').toggleClass('hide');
             $('#principal').toggleClass('hide');
-            $('#li-nombre-sala').html(glob_nombre_sala);
-            $('#li-nombre-usuario').html(glob_nombre_usuario);
+            $('#li-nombre-sala').html('<i class="fas fa-users"></i>' + glob_nombre_sala);
+            $('#li-nombre-usuario').html('<i class="fas fa-user"></i>' + glob_nombre_usuario);
             glob_es_iniciador = true;
             mi_socket_id = datos.id;
             pc_iniciador = new conexion(0, false);
@@ -78,8 +78,8 @@
         socket.on('agregado_a_sala', function(datos) {
             $('#inicio').toggleClass('hide');
             $('#principal').toggleClass('hide');
-            $('#li-nombre-sala').html(glob_nombre_sala);
-            $('#li-nombre-usuario').html(glob_nombre_usuario);
+            $('#li-nombre-sala').html('<i class="fas fa-users"></i>' + glob_nombre_sala);
+            $('#li-nombre-usuario').html('<i class="fas fa-user"></i>' + glob_nombre_usuario);
             mi_socket_id = datos.id;
             var x;
             for (x = 0; x < datos.ids_conectados.length; x++) {
@@ -137,7 +137,6 @@
                 delete pcs[datos.id];
                 $('#' + datos.id).remove();
                 $('#lista-usuarios-conectados li[data-nombre="' + datos.nombre + '"]').remove();
-                //establecer_tamano_chat();
             }
         });
         window.addEventListener('beforeunload', function() {
@@ -150,29 +149,7 @@
     });
 
     function enfocar_caja_texto() {
-        var input_error = $(this).hasClass('error');
-        var input_inicial = ($(this).val() == '');
-        if (input_inicial || (!input_inicial && input_error)) {
-            $(this).addClass('editing').removeClass('error').val('');
-            $(this).prev().addClass('editing').removeClass('error');
-        }
-    }
-
-    function desenfocar_caja_texto() {
-        var input_inicial = ($(this).val() == '');
-        if (input_inicial) {
-            $(this).removeClass('editing');
-            $(this).prev().removeClass('editing');
-        }
-    }
-
-    function establecer_tamano_chat() {
-        var ancho_pantalla = $(document).width();
-        if (ancho_pantalla >= 414) {
-            var video_tamano = $('#contenedor-videos').height();
-            $('#lista-mensajes').height(video_tamano - 67);
-        }
-        $('#contenedor-chat').removeClass('hide');
+        $(this).next().removeClass('error');
     }
 
     function mostrar_video_local(objeto, ofertar, stream) {
@@ -180,7 +157,6 @@
         stream.getAudioTracks()[0].enabled = false;
         video_local.srcObject = stream;
         glob_local_stream = stream;
-        //video_local.onloadeddata = establecer_tamano_chat;
         if (!glob_es_iniciador) {
             pcs[objeto].cliente.addStream(stream);
             pcs[objeto].cliente.onicecandidate = enviar_candidato.bind(null, pcs[objeto]);
@@ -200,7 +176,6 @@
     function mostrar_video_remoto(objeto, evt) {
         var video_remoto = document.getElementById(objeto.socket_id_destino);
         video_remoto.srcObject = evt.streams[0];
-        //video_remoto.onloadeddata = establecer_tamano_chat;
     }
 
     function enviar_candidato(objeto, evt) {
