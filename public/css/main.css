@@ -199,7 +199,6 @@ video {
 #contenedor-chat h1,
 #contenedor-usuarios-conectados h1 {
     background: #3F4F57;
-    border-bottom: 1px solid #FFF;
     color: #EEE;
     height: 5vh;
     line-height: 5vh;
@@ -253,7 +252,7 @@ video {
 #contenedor-controles-chat textarea {
     border: none;
     font-size: 14px;
-    height: 12vh;
+    height: 8vh;
     margin-left: 2vw;
     outline: none;
     padding: 15px 0;

@@ -65,9 +65,9 @@
                 $('#btn-audio-control i').attr('class', 'fa fa-microphone')
             glob_local_stream.getAudioTracks()[0].enabled = !(glob_local_stream.getAudioTracks()[0].enabled);
         });
-        $('#btn-colgar').click(function() { location.reload(); });
-        $('#contenedor-usuarios-conectados i').click(abrir_archivo_uno);
-        $('#contenedor-usuarios-conectados input').change(compartir_archivo_uno);
+        $('#li-desconectar').click(function() { location.reload(); });
+        $('#contenedor-usuarios-conectados').on('click', 'i', abrir_archivo_uno);
+        $('#contenedor-usuarios-conectados').on('change', 'input', compartir_archivo_uno);
         socket.on('sala_creada', function(datos) {
             $('#inicio').toggleClass('hide');
             $('#principal').toggleClass('hide');
@@ -86,7 +86,11 @@
             var x;
             for (x = 0; x < datos.ids_conectados.length; x++) {
                 $('#lista-usuarios-conectados').
-                append('<li data-nombre="' + datos.usuarios_conectados[x] + '">' + datos.usuarios_conectados[x] + '</li>');
+                append('<li data-nombre="' + datos.usuarios_conectados[x] + '">' +
+                    '<p>' + datos.usuarios_conectados[x] + '</p>' +
+                    '<input type="file" name="one">' +
+                    '<i class="fa fa-share-alt" aria-hidden="true"></i>' +
+                    '</li>');
                 $('<video id="' + datos.ids_conectados[x] + '" autoplay src=""></video>').insertBefore('#contenedor-botones-video');
                 pcs[datos.ids_conectados[x]] = new conexion(datos.ids_conectados[x], true);
             }
@@ -102,7 +106,12 @@
             append('<li><strong>' + datos.nombre_usuario + ':</strong> ' + datos.mensaje + '</li>');
         });
         socket.on('usuario_agregado', function(datos) {
-            $('#lista-usuarios-conectados').append('<li data-nombre=' + datos.nuevo_usuario + '>' + datos.nuevo_usuario + '</li>');
+            $('#lista-usuarios-conectados')
+                .append('<li data-nombre=' + datos.nuevo_usuario + '>' +
+                    '<p>' + datos.nuevo_usuario + '</p>' +
+                    '<input type="file" name="one">' +
+                    '<i class="fa fa-share-alt" aria-hidden="true"></i>' +
+                    '</li>');
             $('<video id="' + datos.nuevo_id + '" autoplay src=""></video>').insertBefore('#contenedor-botones-video');
             if (glob_es_iniciador && pc_iniciador != undefined) {
                 glob_es_iniciador = false;
