@@ -66,6 +66,8 @@
             glob_local_stream.getAudioTracks()[0].enabled = !(glob_local_stream.getAudioTracks()[0].enabled);
         });
         $('#btn-colgar').click(function() { location.reload(); });
+        $('#contenedor-usuarios-conectados i').click(abrir_archivo_uno);
+        $('#contenedor-usuarios-conectados input').change(compartir_archivo_uno);
         socket.on('sala_creada', function(datos) {
             $('#inicio').toggleClass('hide');
             $('#principal').toggleClass('hide');
@@ -216,5 +218,20 @@
 
     function crear_respuesta(objeto, evt) {
         return objeto.cliente.createAnswer();
+    }
+
+    function abrir_archivo_uno() {
+        $(this).prev().click();
+    }
+
+    function compartir_archivo_uno(event) {
+        var archivo = event.target.files;
+        if (archivo.length > 1) {
+            alert('Solo puede compartir un archivo a la vez. . .');
+        } else if (archivo.length == 0) {
+            alert('Debe seleccionar un archiva a compartir. . .');
+        } else {
+            alert('El archivo seleccionado es: ' + archivo[0].name);
+        }
     }
 })();

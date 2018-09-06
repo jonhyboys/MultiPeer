@@ -150,8 +150,8 @@ header i {
     margin-right: 5px;
 }
 
-#li-usuarios-conectados {
-    position: relative;
+#li-desconectar:hover {
+    color: #0099CC;
 }
 
 #contenedor-videos {
@@ -186,7 +186,7 @@ video {
 }
 
 #contenedor-botones-video i:hover {
-    color: #222;
+    color: #0099CC;
 }
 
 #contenedor-chat {
@@ -199,7 +199,8 @@ video {
 #contenedor-chat h1,
 #contenedor-usuarios-conectados h1 {
     background: #3F4F57;
-    color: #728A95;
+    border-bottom: 1px solid #FFF;
+    color: #EEE;
     height: 5vh;
     line-height: 5vh;
     position: relative;
@@ -222,7 +223,12 @@ video {
 }
 
 #contenedor-chat li {
+    background: #0099CC;
+    border-radius: 10px;
+    clear: both;
+    float: left;
     margin: 5px 10px;
+    padding: 10px;
 }
 
 #contenedor-chat li:first-child {
@@ -248,10 +254,11 @@ video {
     border: none;
     font-size: 14px;
     height: 12vh;
+    margin-left: 2vw;
     outline: none;
     padding: 15px 0;
     text-indent: 15px;
-    width: 28vw;
+    width: 22vw;
 }
 
 #contenedor-controles-chat div {
@@ -294,14 +301,34 @@ video {
     width: 20vw;
 }
 
+#contenedor-usuarios-conectados h1 {
+    position: relative;
+}
+
 #contenedor-usuarios-conectados li {
     background: #222;
     margin: 5px;
     padding: 10px 20px;
+    position: relative;
 }
 
 #contenedor-usuarios-conectados li:first-child {
     margin-top: 20px;
+}
+
+#contenedor-usuarios-conectados input {
+    display: none;
+}
+
+#contenedor-usuarios-conectados i {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 11px;
+}
+
+#contenedor-usuarios-conectados i:hover {
+    color: #0099CC;
 }
 
 
