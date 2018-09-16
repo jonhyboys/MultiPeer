@@ -13,6 +13,18 @@
         glob_local_stream,
         glob_es_iniciador = false,
         socket;
+    //Compartir Archivos
+    const BYTES_POR_PEDAZO = 1200;
+    var archivo_seleccionado,
+        pedazo_actual,
+        lector_archivo = new FileReader(),
+        ids_enviar;
+    //Recibir archivos
+    var archivo_entrante_informacion;
+    var archivo_entrante_datos;
+    var bytes_recibidos;
+    var descarga_en_progreso = false;
+
     $(document).ready(function() {
         socket = io();
         $('#txt-nombre-sala, #txt-nombre-usuario').focus(enfocar_caja_texto);
@@ -66,8 +78,9 @@
             glob_local_stream.getAudioTracks()[0].enabled = !(glob_local_stream.getAudioTracks()[0].enabled);
         });
         $('#li-desconectar').click(function() { location.reload(); });
-        $('#contenedor-usuarios-conectados').on('click', 'i', abrir_archivo_uno);
-        $('#contenedor-usuarios-conectados').on('change', 'input', compartir_archivo_uno);
+        $('#contenedor-usuarios-conectados').on('click', 'i', abrir_archivo);
+        $('#contenedor-usuarios-conectados').on('change', 'li input', compartir_archivo_uno);
+        $('#contenedor-usuarios-conectados').on('change', 'h1 input', compartir_archivo_todos);
         socket.on('sala_creada', function(datos) {
             $('#inicio').toggleClass('hide');
             $('#principal').toggleClass('hide');
@@ -88,19 +101,15 @@
                 $('#lista-usuarios-conectados').
                 append('<li data-nombre="' + datos.usuarios_conectados[x] + '">' +
                     '<p>' + datos.usuarios_conectados[x] + '</p>' +
-                    '<input type="file" name="one">' +
+                    '<input type="file" name="one" id="share-' + datos.ids_conectados[x] + '">' +
                     '<i class="fa fa-share-alt" aria-hidden="true"></i>' +
                     '</li>');
                 $('<video id="' + datos.ids_conectados[x] + '" autoplay src=""></video>').insertBefore('#contenedor-botones-video');
                 pcs[datos.ids_conectados[x]] = new conexion(datos.ids_conectados[x], true);
             }
         });
-        socket.on('sala_llena', function() {
-            $('#msj-sala-llena').removeClass('hide');
-        });
-        socket.on('usuario_existe', function() {
-            $('#msj-usuario-existe').removeClass('hide');
-        });
+        socket.on('sala_llena', function() { $('#msj-sala-llena').removeClass('hide'); });
+        socket.on('usuario_existe', function() { $('#msj-usuario-existe').removeClass('hide'); });
         socket.on('mensaje', function(datos) {
             $('#lista-mensajes').
             append('<li><strong>' + datos.nombre_usuario + ':</strong> ' + datos.mensaje + '</li>');
@@ -109,7 +118,7 @@
             $('#lista-usuarios-conectados')
                 .append('<li data-nombre=' + datos.nuevo_usuario + '>' +
                     '<p>' + datos.nuevo_usuario + '</p>' +
-                    '<input type="file" name="one">' +
+                    '<input type="file" name="one" id="share-' + datos.nuevo_id + '">' +
                     '<i class="fa fa-share-alt" aria-hidden="true"></i>' +
                     '</li>');
             $('<video id="' + datos.nuevo_id + '" autoplay src=""></video>').insertBefore('#contenedor-botones-video');
@@ -128,21 +137,14 @@
         });
         socket.on('descripcion', function(datos) {
             if (datos.descripcion.type == 'offer') {
-                console.log('Oferta de: ' + datos.socket_origen);
                 pcs[datos.socket_origen].cliente.setRemoteDescription(datos.descripcion)
                     .then(crear_respuesta.bind(null, pcs[datos.socket_origen]))
                     .then(establecer_descripcion_local.bind(null, pcs[datos.socket_origen]))
                     .then(enviar_descripcion.bind(null, pcs[datos.socket_origen]))
                     .catch(mostrar_error);
-            } else {
-                pcs[datos.socket_origen].cliente.setRemoteDescription(datos.descripcion).catch(mostrar_error);
-                console.log('Respuesta de: ' + datos.socket_origen);
-            }
+            } else { pcs[datos.socket_origen].cliente.setRemoteDescription(datos.descripcion).catch(mostrar_error); }
         });
-        socket.on('candidato', function(datos) {
-            console.log('Candidato recibido de: ' + datos.socket_origen);
-            pcs[datos.socket_origen].cliente.addIceCandidate(datos.candidato);
-        });
+        socket.on('candidato', function(datos) { pcs[datos.socket_origen].cliente.addIceCandidate(datos.candidato); });
         socket.on('desconectar', function(datos) {
             if (pcs[datos.id] != undefined) {
                 delete pcs[datos.id];
@@ -159,9 +161,7 @@
         }, false);
     });
 
-    function enfocar_caja_texto() {
-        $(this).next().removeClass('error');
-    }
+    function enfocar_caja_texto() { $(this).next().removeClass('error'); }
 
     function mostrar_video_local(objeto, ofertar, stream) {
         var video_local = document.getElementById('video-local');
@@ -179,9 +179,27 @@
     function conexion(destino, ofertar) {
         this.socket_id_destino = destino;
         this.cliente = new RTCPeerConnection(pcConfig);
+        this.canal_datos = this.cliente.createDataChannel(destino);
         navigator.mediaDevices.getUserMedia({ audio: true, video: { width: { ideal: 640 }, height: { ideal: 480 } } })
             .then(mostrar_video_local.bind(null, this.socket_id_destino, ofertar))
             .catch(mostrar_error);
+        this.canal_datos.onmessage = recibir_datos;
+        this.canal_datos.onopen = function() {
+            console.log("datachannel open");
+        };
+
+        this.canal_datos.onclose = function() {
+            console.log("datachannel close");
+        };
+        this.canal_datos.onerror = function(event) {
+            console.log(event.message);
+        };
+        this.cliente.ondatachannel = canal_nuevo.bind(null, this.canal_datos);
+    }
+
+    function canal_nuevo(objeto, evt) {
+        objeto = evt.channel;
+        objeto.onmessage = recibir_datos;
     }
 
     function mostrar_video_remoto(objeto, evt) {
@@ -191,7 +209,6 @@
 
     function enviar_candidato(objeto, evt) {
         if (evt.candidate) {
-            console.log('Enviando candidato a:' + objeto.socket_id_destino);
             socket.emit('candidato', {
                 nombre_sala: glob_nombre_sala,
                 socket_destino: objeto.socket_id_destino,
@@ -207,12 +224,9 @@
             .catch(mostrar_error);
     }
 
-    function establecer_descripcion_local(objeto, oferta) {
-        return objeto.cliente.setLocalDescription(oferta);
-    }
+    function establecer_descripcion_local(objeto, oferta) { return objeto.cliente.setLocalDescription(oferta); }
 
     function enviar_descripcion(objeto, evt) {
-        console.log('Enviando descripción a: ' + objeto.socket_id_destino);
         socket.emit('descripcion', {
             nombre_sala: glob_nombre_sala,
             socket_origen: mi_socket_id,
@@ -221,26 +235,114 @@
         });
     }
 
-    function mostrar_error(error) {
-        console.log(error.name + ': ' + error.message);
-    }
+    function mostrar_error(error) { console.log(error.name + ': ' + error.message); }
 
-    function crear_respuesta(objeto, evt) {
-        return objeto.cliente.createAnswer();
-    }
+    function crear_respuesta(objeto, evt) { return objeto.cliente.createAnswer(); }
 
-    function abrir_archivo_uno() {
-        $(this).prev().click();
-    }
+    function abrir_archivo() { $(this).prev().click(); }
 
     function compartir_archivo_uno(event) {
-        var archivo = event.target.files;
-        if (archivo.length > 1) {
-            alert('Solo puede compartir un archivo a la vez. . .');
-        } else if (archivo.length == 0) {
-            alert('Debe seleccionar un archiva a compartir. . .');
-        } else {
-            alert('El archivo seleccionado es: ' + archivo[0].name);
+        var lista_archivos_seleccionados = event.target.files;
+        if (lista_archivos_seleccionados.length > 1) { alert('Solo puede compartir un archivo a la vez. . .'); } else if (lista_archivos_seleccionados.length == 0) { alert('Debe seleccionar un archiva a compartir. . .'); } else {
+            archivo_seleccionado = lista_archivos_seleccionados[0];
+            pedazo_actual = 0;
+            var objeto = $(this).attr('id').replace('share-', '');
+            alert('El archivo seleccionado es: ' + archivo_seleccionado.name);
+            $(this).parent().append('<label>Enviando...</label><progress max="' + archivo_seleccionado.size + '" value="0"></progress>');
+            pcs[objeto].canal_datos.send(JSON.stringify({
+                nombre_archivo: archivo_seleccionado.name,
+                tamano_archivo: archivo_seleccionado.size
+            }));
+            lector_archivo.onload = destino => enviar_pedazo_uno(objeto);
+            leer_nuevo_pedazo_uno();
+        }
+    }
+
+    function leer_nuevo_pedazo_uno() {
+        var inicio = BYTES_POR_PEDAZO * pedazo_actual;
+        var fin = Math.min(archivo_seleccionado.size, inicio + BYTES_POR_PEDAZO);
+        lector_archivo.readAsArrayBuffer(archivo_seleccionado.slice(inicio, fin));
+    }
+
+    function enviar_pedazo_uno(objeto) {
+        pcs[objeto].canal_datos.send(lector_archivo.result);
+        $('#contenedor-usuarios-conectados progress').val(BYTES_POR_PEDAZO * pedazo_actual);
+        pedazo_actual++;
+        if (BYTES_POR_PEDAZO * pedazo_actual < archivo_seleccionado.size) { leer_nuevo_pedazo_uno(); } else {
+            $('#contenedor-usuarios-conectados label, #contenedor-usuarios-conectados progress').remove();
+        }
+    }
+
+    function compartir_archivo_todos(event) {
+        var lista_archivos_seleccionados = event.target.files;
+        if (lista_archivos_seleccionados.length > 1) { alert('Solo puede compartir un archivo a la vez. . .'); } else if (lista_archivos_seleccionados.length == 0) { alert('Debe seleccionar un archiva a compartir. . .'); } else {
+            archivo_seleccionado = lista_archivos_seleccionados[0];
+            pedazo_actual = 0;
+            ids_enviar = [];
+            var objetos = $('#contenedor-usuarios-conectados li'),
+                i;
+            alert('El archivo seleccionado es: ' + archivo_seleccionado.name);
+            for (i = 0; i < objetos.length; i++) {
+                ids_enviar.push($(objetos[i]).find('input').attr('id').replace('share-', ''));
+                $(objetos[i]).append('<label>Enviando...</label><progress max="' + archivo_seleccionado.size + '" value="0"></progress>');
+                pcs[ids_enviar[i]].canal_datos.send(JSON.stringify({
+                    nombre_archivo: archivo_seleccionado.name,
+                    tamano_archivo: archivo_seleccionado.size
+                }));
+            }
+            lector_archivo.onload = destino => enviar_pedazo_todos();
+            leer_nuevo_pedazo_todos();
+        }
+    }
+
+    function leer_nuevo_pedazo_todos() {
+        var inicio = BYTES_POR_PEDAZO * pedazo_actual;
+        var fin = Math.min(archivo_seleccionado.size, inicio + BYTES_POR_PEDAZO);
+        lector_archivo.readAsArrayBuffer(archivo_seleccionado.slice(inicio, fin));
+    }
+
+    function enviar_pedazo_todos() {
+        var i;
+        for (i = 0; i < ids_enviar.length; i++) {
+            pcs[ids_enviar[i]].canal_datos.send(lector_archivo.result);
+        }
+        $('#contenedor-usuarios-conectados progress').val(BYTES_POR_PEDAZO * pedazo_actual);
+        pedazo_actual++;
+        if (BYTES_POR_PEDAZO * pedazo_actual < archivo_seleccionado.size) { leer_nuevo_pedazo_todos(); } else {
+            $('#contenedor-usuarios-conectados label, #contenedor-usuarios-conectados progress').remove();
+        }
+    }
+
+    function recibir_datos(evt) {
+        if (descarga_en_progreso === false) { iniciar_descarga(evt.data); } else { continuar_descarga(evt.data); }
+    }
+
+    function iniciar_descarga(data) {
+        archivo_entrante_informacion = JSON.parse(data.toString());
+        archivo_entrante_datos = [];
+        bytes_recibidos = 0;
+        descarga_en_progreso = true;
+    }
+
+    function continuar_descarga(data) {
+        bytes_recibidos += data.byteLength;
+        archivo_entrante_datos.push(data);
+        console.log('progress: ' + ((bytes_recibidos / archivo_entrante_informacion.tamano_archivo) * 100).toFixed(2) + '%');
+        if (bytes_recibidos === archivo_entrante_informacion.tamano_archivo) { terminar_descarga(); }
+    }
+
+    function terminar_descarga() {
+        descarga_en_progreso = false;
+        var blob = new window.Blob(archivo_entrante_datos);
+        var anchor = document.createElement('a');
+        anchor.href = URL.createObjectURL(blob);
+        anchor.download = archivo_entrante_informacion.nombre_archivo;
+        anchor.textContent = 'XXXXXXX';
+
+        if (anchor.click) { anchor.click(); } else {
+            var evt = document.createEvent('MouseEvents');
+            evt.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            anchor.dispatchEvent(evt);
         }
     }
 })();

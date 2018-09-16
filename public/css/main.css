@@ -330,6 +330,15 @@ video {
     color: #0099CC;
 }
 
+#contenedor-usuarios-conectados label {
+    font-size: 10px;
+    margin-top: 10px;
+}
+
+#contenedor-usuarios-conectados progress {
+    width: 100%;
+}
+
 
 /*
 @media only screen and (max-width: 1350px) {
