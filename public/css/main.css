@@ -9,8 +9,7 @@ body,
 article,
 section,
 #inicio>div {
-    height: 100%;
-    min-height: 100%;
+    min-height: 100vh;
 }
 
 article {
@@ -150,6 +149,10 @@ header i {
     margin-right: 5px;
 }
 
+#li-desconectar::after {
+    content: "Desconectar";
+}
+
 #li-desconectar:hover {
     color: #0099CC;
 }
@@ -200,8 +203,8 @@ video {
 #contenedor-usuarios-conectados h1 {
     background: #3F4F57;
     color: #EEE;
-    height: 5vh;
-    line-height: 5vh;
+    height: 4vh;
+    line-height: 4vh;
     position: relative;
     text-align: center;
 }
@@ -228,6 +231,7 @@ video {
     float: left;
     margin: 5px 10px;
     padding: 10px;
+    word-break: break-all;
 }
 
 #contenedor-chat li:first-child {
@@ -251,22 +255,23 @@ video {
 
 #contenedor-controles-chat textarea {
     border: none;
-    font-size: 14px;
-    height: 8vh;
-    margin-left: 2vw;
+    font-size: 12px;
+    height: 11vh;
+    margin-left: 0vw;
     outline: none;
-    padding: 15px 0;
-    text-indent: 15px;
-    width: 22vw;
+    padding: 5px 0;
+    text-indent: 10px;
+    width: 25vw;
 }
 
 #contenedor-controles-chat div {
-    border-radius: 30px;
     cursor: pointer;
-    font-size: 30px;
-    position: absolute;
-    right: 10px;
-    top: 10px;
+    font-size: 3vh;
+    float: right;
+    height: 4vh;
+    line-height: 4vh;
+    text-align: center;
+    width: 4vw;
 }
 
 #contenedor-controles-chat div:hover {
@@ -321,9 +326,10 @@ video {
 
 #contenedor-usuarios-conectados i {
     cursor: pointer;
-    position: absolute;
-    right: 10px;
-    top: 11px;
+    float: right;
+    height: 4vh;
+    line-height: 4vh;
+    margin-right: 1vh;
 }
 
 #contenedor-usuarios-conectados i:hover {
@@ -354,23 +360,73 @@ video {
     header>ul {
         font-size: 15px;
     }
-}
+}*/
 
 @media only screen and (max-width: 768px) {
+    header {
+        height: 4vh;
+        line-height: 4vh;
+    }
+    header h1 {
+        background-size: 20px;
+        font-size: 12px;
+        margin-left: 15px;
+        text-indent: 25px;
+    }
     header>ul {
-        font-size: 11px;
+        font-size: 10px;
+        margin-right: 10px;
+    }
+    header>ul>li {
+        margin: 0 3px;
+    }
+    #li-desconectar::after {
+        content: "";
     }
     #contenedor-videos {
-        width: 50%;
+        height: 40vh;
+        margin: 0 auto;
+        width: 100vw;
     }
     video {
-        width: 48%;
+        width: 30vw;
+        margin: 0vh 2vw;
+        height: 20vh;
+    }
+    #contenedor-botones-video {
+        display: none;
     }
     #contenedor-chat {
-        width: 49%;
+        height: 40vh;
+        margin: 0 auto;
+        width: 100vw;
+    }
+    #contenedor-chat h1 {
+        height: 4vh;
+        line-height: 4vh;
+    }
+    #contenedor-chat ul {
+        font-size: 10px;
+        height: 35vh;
+    }
+    #contenedor-controles-chat {
+        height: 10vh;
+    }
+    #contenedor-controles-chat textarea {
+        font-size: 10px;
+        height: 4vh;
+        margin: 0 auto;
+        padding: 5px 0;
+        text-indent: 5px;
+        width: 90vw;
+    }
+    #contenedor-usuarios-conectados {
+        display: none;
     }
 }
 
+
+/*
 @media only screen and (max-width: 414px) {
     form {
         min-width: 260px;

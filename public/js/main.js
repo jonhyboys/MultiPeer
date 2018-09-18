@@ -53,7 +53,9 @@
         $('#btn-enviar').click(function() {
             var _mensaje = $('#txt-mensaje-enviar').val();
             if (_mensaje != '') {
-                $('#lista-mensajes').append('<li><strong>' + glob_nombre_usuario + ':</strong> ' + _mensaje + '</li>');
+                $('#lista-mensajes')
+                    .append('<li><strong>' + glob_nombre_usuario + ':</strong> ' + _mensaje + '</li>')
+                    .scrollTop(1000);
                 var obj_msg = {
                     nombre_sala: glob_nombre_sala,
                     nombre_usuario: glob_nombre_usuario,
@@ -111,8 +113,9 @@
         socket.on('sala_llena', function() { $('#msj-sala-llena').removeClass('hide'); });
         socket.on('usuario_existe', function() { $('#msj-usuario-existe').removeClass('hide'); });
         socket.on('mensaje', function(datos) {
-            $('#lista-mensajes').
-            append('<li><strong>' + datos.nombre_usuario + ':</strong> ' + datos.mensaje + '</li>');
+            $('#lista-mensajes')
+                .append('<li><strong>' + datos.nombre_usuario + ':</strong> ' + datos.mensaje + '</li>')
+                .scrollTop(1000);
         });
         socket.on('usuario_agregado', function(datos) {
             $('#lista-usuarios-conectados')
