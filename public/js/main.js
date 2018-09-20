@@ -256,7 +256,6 @@
     function crear_respuesta(objeto, evt) { return objeto.cliente.createAnswer(); }
 
     function pedir_confirmacion_envio() {
-        console.log(usuarios_a_compartir);
         for (var i = 0; i < usuarios_a_compartir.length; i++) {
             socket.emit('archivo', { id_usuario_destino: usuarios_a_compartir[i], id_usuario: mi_socket_id, nombre_usuario: glob_nombre_usuario });
         }
@@ -286,7 +285,6 @@
                 usuarios_a_compartir.push(destino);
             }
         }
-        console.log(usuarios_a_compartir);
         $('#selector-archivos').click();
     }
 
