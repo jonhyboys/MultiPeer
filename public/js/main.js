@@ -15,6 +15,8 @@
         socket;
     //Compartir Archivos
     const BYTES_POR_PEDAZO = 1200;
+    var usuarios_a_compartir,
+        archivo_a_compartir;
     var archivo_seleccionado,
         pedazo_actual,
         lector_archivo = new FileReader(),
@@ -80,9 +82,8 @@
             glob_local_stream.getAudioTracks()[0].enabled = !(glob_local_stream.getAudioTracks()[0].enabled);
         });
         $('#li-desconectar').click(function() { location.reload(); });
-        $('#contenedor-usuarios-conectados').on('click', 'i', abrir_archivo);
-        $('#contenedor-usuarios-conectados').on('change', 'li input', compartir_archivo_uno);
-        $('#contenedor-usuarios-conectados').on('change', 'h1 input', compartir_archivo_todos);
+        $('#contenedor-usuarios-conectados').on('click', 'i', mostrar_selector_archivos);
+        $('#selector-archivos').change(seleccionar_archivo);
         socket.on('sala_creada', function(datos) {
             $('#inicio').toggleClass('hide');
             $('#principal').toggleClass('hide');
@@ -103,8 +104,7 @@
                 $('#lista-usuarios-conectados').
                 append('<li data-nombre="' + datos.usuarios_conectados[x] + '">' +
                     '<p>' + datos.usuarios_conectados[x] + '</p>' +
-                    '<input type="file" name="one" id="share-' + datos.ids_conectados[x] + '">' +
-                    '<i class="fa fa-share-alt" aria-hidden="true"></i>' +
+                    '<i class="fa fa-share-alt" aria-hidden="true" id="share-' + datos.ids_conectados[x] + '"></i>' +
                     '</li>');
                 $('<video id="' + datos.ids_conectados[x] + '" autoplay src=""></video>').insertBefore('#contenedor-botones-video');
                 pcs[datos.ids_conectados[x]] = new conexion(datos.ids_conectados[x], true);
@@ -121,8 +121,7 @@
             $('#lista-usuarios-conectados')
                 .append('<li data-nombre=' + datos.nuevo_usuario + '>' +
                     '<p>' + datos.nuevo_usuario + '</p>' +
-                    '<input type="file" name="one" id="share-' + datos.nuevo_id + '">' +
-                    '<i class="fa fa-share-alt" aria-hidden="true"></i>' +
+                    '<i class="fa fa-share-alt" aria-hidden="true" id="share-' + datos.nuevo_id + '"></i>' +
                     '</li>');
             $('<video id="' + datos.nuevo_id + '" autoplay src=""></video>').insertBefore('#contenedor-botones-video');
             if (glob_es_iniciador && pc_iniciador != undefined) {
@@ -131,6 +130,7 @@
                 pc_iniciador.cliente.addStream(glob_local_stream);
                 pc_iniciador.cliente.onicecandidate = enviar_candidato.bind(null, pc_iniciador);
                 pc_iniciador.cliente.ontrack = mostrar_video_remoto.bind(null, pc_iniciador);
+                pc_iniciador.archivo.set_destino(datos.nuevo_id);
                 pcs[datos.nuevo_id] = pc_iniciador;
                 pc_iniciador = undefined;
             } else {
@@ -153,6 +153,18 @@
                 delete pcs[datos.id];
                 $('#' + datos.id).remove();
                 $('#lista-usuarios-conectados li[data-nombre="' + datos.nombre + '"]').remove();
+            }
+        });
+        socket.on('archivo', function(datos) {
+            var x = confirm("El usuario " + datos.nombre_usuario + " está intentando enviarle un archivo, desea recibirlo?");
+            socket.emit('archivo_respuesta', { id_usuario_destino: datos.id_usuario, id_usuario: mi_socket_id, nombre_usuario: glob_nombre_usuario, respuesta: x });
+        });
+        socket.on('archivo_respuesta', function(datos) {
+            if (datos.respuesta) {
+                pcs[datos.id_usuario].archivo.set_archivo(archivo_a_compartir);
+                pcs[datos.id_usuario].archivo.iniciar();
+            } else {
+                alert('El usuario ' + datos.nombre_usuario + ' no acepto el archivo');
             }
         });
         window.addEventListener('beforeunload', function() {
@@ -183,6 +195,7 @@
         this.socket_id_destino = destino;
         this.cliente = new RTCPeerConnection(pcConfig);
         this.canal_datos = this.cliente.createDataChannel(destino);
+        this.archivo = new CompartirArchivo(mi_socket_id, this.canal_datos, destino);
         navigator.mediaDevices.getUserMedia({ audio: true, video: { width: { ideal: 640 }, height: { ideal: 480 } } })
             .then(mostrar_video_local.bind(null, this.socket_id_destino, ofertar))
             .catch(mostrar_error);
@@ -242,82 +255,47 @@
 
     function crear_respuesta(objeto, evt) { return objeto.cliente.createAnswer(); }
 
-    function abrir_archivo() { $(this).prev().click(); }
-
-    function compartir_archivo_uno(event) {
-        var lista_archivos_seleccionados = event.target.files;
-        if (lista_archivos_seleccionados.length > 1) { alert('Solo puede compartir un archivo a la vez. . .'); } else if (lista_archivos_seleccionados.length == 0) { alert('Debe seleccionar un archiva a compartir. . .'); } else {
-            archivo_seleccionado = lista_archivos_seleccionados[0];
-            pedazo_actual = 0;
-            var objeto = $(this).attr('id').replace('share-', '');
-            alert('El archivo seleccionado es: ' + archivo_seleccionado.name);
-            $(this).parent().append('<label>Enviando...</label><progress max="' + archivo_seleccionado.size + '" value="0"></progress>');
-            pcs[objeto].canal_datos.send(JSON.stringify({
-                nombre_archivo: archivo_seleccionado.name,
-                tamano_archivo: archivo_seleccionado.size
-            }));
-            lector_archivo.onload = destino => enviar_pedazo_uno(objeto);
-            leer_nuevo_pedazo_uno();
+    function pedir_confirmacion_envio() {
+        console.log(usuarios_a_compartir);
+        for (var i = 0; i < usuarios_a_compartir.length; i++) {
+            socket.emit('archivo', { id_usuario_destino: usuarios_a_compartir[i], id_usuario: mi_socket_id, nombre_usuario: glob_nombre_usuario });
         }
     }
 
-    function leer_nuevo_pedazo_uno() {
-        var inicio = BYTES_POR_PEDAZO * pedazo_actual;
-        var fin = Math.min(archivo_seleccionado.size, inicio + BYTES_POR_PEDAZO);
-        lector_archivo.readAsArrayBuffer(archivo_seleccionado.slice(inicio, fin));
-    }
-
-    function enviar_pedazo_uno(objeto) {
-        pcs[objeto].canal_datos.send(lector_archivo.result);
-        $('#contenedor-usuarios-conectados progress').val(BYTES_POR_PEDAZO * pedazo_actual);
-        pedazo_actual++;
-        if (BYTES_POR_PEDAZO * pedazo_actual < archivo_seleccionado.size) { leer_nuevo_pedazo_uno(); } else {
-            $('#contenedor-usuarios-conectados label, #contenedor-usuarios-conectados progress').remove();
+    function seleccionar_archivo(evt) {
+        var lista_archivos_seleccionados = evt.target.files;
+        if (lista_archivos_seleccionados.length > 1) {
+            alert('Solo puede compartir un archivo a la vez. . .');
+        } else if (lista_archivos_seleccionados.length == 0) {
+            alert('Debe seleccionar un archiva a compartir. . .');
+        } else {
+            archivo_a_compartir = lista_archivos_seleccionados[0];
+            pedir_confirmacion_envio();
         }
     }
 
-    function compartir_archivo_todos(event) {
-        var lista_archivos_seleccionados = event.target.files;
-        if (lista_archivos_seleccionados.length > 1) { alert('Solo puede compartir un archivo a la vez. . .'); } else if (lista_archivos_seleccionados.length == 0) { alert('Debe seleccionar un archiva a compartir. . .'); } else {
-            archivo_seleccionado = lista_archivos_seleccionados[0];
-            pedazo_actual = 0;
-            ids_enviar = [];
-            var objetos = $('#contenedor-usuarios-conectados li'),
-                i;
-            alert('El archivo seleccionado es: ' + archivo_seleccionado.name);
-            for (i = 0; i < objetos.length; i++) {
-                ids_enviar.push($(objetos[i]).find('input').attr('id').replace('share-', ''));
-                $(objetos[i]).append('<label>Enviando...</label><progress max="' + archivo_seleccionado.size + '" value="0"></progress>');
-                pcs[ids_enviar[i]].canal_datos.send(JSON.stringify({
-                    nombre_archivo: archivo_seleccionado.name,
-                    tamano_archivo: archivo_seleccionado.size
-                }));
+    function mostrar_selector_archivos() {
+        usuarios_a_compartir = [];
+        var tipo = $(this).attr('id').replace('share-', '');
+        if (tipo != 'todos') {
+            usuarios_a_compartir.push(tipo);
+        } else {
+            var lista = $('#contenedor-usuarios-conectados li');
+            for (var i = 0; i < lista.length; i++) {
+                var destino = $(lista[i]).find('i').attr('id').replace('share-', '');
+                usuarios_a_compartir.push(destino);
             }
-            lector_archivo.onload = destino => enviar_pedazo_todos();
-            leer_nuevo_pedazo_todos();
         }
-    }
-
-    function leer_nuevo_pedazo_todos() {
-        var inicio = BYTES_POR_PEDAZO * pedazo_actual;
-        var fin = Math.min(archivo_seleccionado.size, inicio + BYTES_POR_PEDAZO);
-        lector_archivo.readAsArrayBuffer(archivo_seleccionado.slice(inicio, fin));
-    }
-
-    function enviar_pedazo_todos() {
-        var i;
-        for (i = 0; i < ids_enviar.length; i++) {
-            pcs[ids_enviar[i]].canal_datos.send(lector_archivo.result);
-        }
-        $('#contenedor-usuarios-conectados progress').val(BYTES_POR_PEDAZO * pedazo_actual);
-        pedazo_actual++;
-        if (BYTES_POR_PEDAZO * pedazo_actual < archivo_seleccionado.size) { leer_nuevo_pedazo_todos(); } else {
-            $('#contenedor-usuarios-conectados label, #contenedor-usuarios-conectados progress').remove();
-        }
+        console.log(usuarios_a_compartir);
+        $('#selector-archivos').click();
     }
 
     function recibir_datos(evt) {
-        if (descarga_en_progreso === false) { iniciar_descarga(evt.data); } else { continuar_descarga(evt.data); }
+        if (descarga_en_progreso === false) {
+            iniciar_descarga(evt.data);
+        } else {
+            continuar_descarga(evt.data);
+        }
     }
 
     function iniciar_descarga(data) {
@@ -325,12 +303,13 @@
         archivo_entrante_datos = [];
         bytes_recibidos = 0;
         descarga_en_progreso = true;
+        $('#share-' + archivo_entrante_informacion.id_usuario).parent().append('<label>Recibiendo...</label><progress max="' + archivo_entrante_informacion.tamano_archivo + '" value="0"></progress>');
     }
 
     function continuar_descarga(data) {
         bytes_recibidos += data.byteLength;
         archivo_entrante_datos.push(data);
-        console.log('progress: ' + ((bytes_recibidos / archivo_entrante_informacion.tamano_archivo) * 100).toFixed(2) + '%');
+        $('#share-' + archivo_entrante_informacion.id_usuario).next().next().val(bytes_recibidos);
         if (bytes_recibidos === archivo_entrante_informacion.tamano_archivo) { terminar_descarga(); }
     }
 
@@ -338,6 +317,10 @@
         descarga_en_progreso = false;
         var blob = new window.Blob(archivo_entrante_datos);
         var anchor = document.createElement('a');
+
+        $('#share-' + archivo_entrante_informacion.id_usuario).next().remove();
+        $('#share-' + archivo_entrante_informacion.id_usuario).next().remove();
+
         anchor.href = URL.createObjectURL(blob);
         anchor.download = archivo_entrante_informacion.nombre_archivo;
         anchor.textContent = 'XXXXXXX';

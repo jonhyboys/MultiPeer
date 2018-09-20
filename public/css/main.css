@@ -108,6 +108,13 @@ form div p.error {
     color: #222;
 }
 
+#msj-usuario-existe,
+#msj-sala-llena {
+    color: red;
+    margin-top: 15px;
+    padding: 0;
+}
+
 #principal {
     background: #5f6062;
     overflow: auto;
@@ -313,6 +320,7 @@ video {
     background: #222;
     margin: 5px;
     padding: 10px 20px;
+    overflow: hidden;
     position: relative;
 }
 
@@ -321,7 +329,14 @@ video {
 }
 
 #contenedor-usuarios-conectados input {
-    display: none;
+    position: absolute;
+    top: -1000px;
+}
+
+#contenedor-usuarios-conectados p {
+    float: left;
+    height: 4vh;
+    line-height: 4vh;
 }
 
 #contenedor-usuarios-conectados i {
@@ -337,6 +352,8 @@ video {
 }
 
 #contenedor-usuarios-conectados label {
+    clear: both;
+    display: block;
     font-size: 10px;
     margin-top: 10px;
 }

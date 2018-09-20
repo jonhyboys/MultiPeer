@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <link rel="icon" href="/images/favicon.ico" />
+    <title>ADA WebRTC App</title>
     <link rel="stylesheet" href="/css/reset.css" />
     <link rel="stylesheet" href="/css/all.css" />
     <link rel="stylesheet" href="/css/main.css" />
@@ -74,8 +75,8 @@
             <div id="contenedor-usuarios-conectados">
                 <h1>
                     Usuarios Conectados
-                    <input type="file" name="one" id="one">
-                    <i class="fa fa-share-alt" aria-hidden="true"></i>
+                    <input type="file" id="selector-archivos" />
+                    <i class="fa fa-share-alt" aria-hidden="true" id="share-todos"></i>
                 </h1>
                 <ul id="lista-usuarios-conectados"></ul>
             </div>
@@ -83,6 +84,7 @@
     </article>
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/jquery.js"></script>
+    <script src="/js/Compartir_Archivo.js"></script>
     <script src="/js/main.js"></script>
 </body>
 

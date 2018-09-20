@@ -24,8 +24,8 @@ console.log('Server running on http://%s:%s', ip, port);
 
 /*INICIO DEL SERVIDOR WEBSOCKET */
 io.on('connection', function(socket) {
-    socket.on('mensaje', function(datos) { 
-        socket.to(datos.nombre_sala).emit('mensaje', datos); 
+    socket.on('mensaje', function(datos) {
+        socket.to(datos.nombre_sala).emit('mensaje', datos);
     });
 
     socket.on('crear_unir_sala', function(datos) {
@@ -54,12 +54,12 @@ io.on('connection', function(socket) {
         } else { socket.emit('sala_llena'); }
     });
 
-    socket.on('candidato', function(datos) { 
-        io.to(datos.socket_destino).emit('candidato', datos); 
+    socket.on('candidato', function(datos) {
+        io.to(datos.socket_destino).emit('candidato', datos);
     });
 
-    socket.on('descripcion', function(datos) { 
-        io.to(datos.socket_destino).emit('descripcion', datos); 
+    socket.on('descripcion', function(datos) {
+        io.to(datos.socket_destino).emit('descripcion', datos);
     });
 
     socket.on('desconectar', function(datos) {
@@ -74,6 +74,14 @@ io.on('connection', function(socket) {
             }
         }
         socket.to(datos.nombre_sala).emit('desconectar', datos);
+    });
+
+    socket.on('archivo', function(datos) {
+        io.to(datos.id_usuario_destino).emit('archivo', datos);
+    });
+
+    socket.on('archivo_respuesta', function(datos) {
+        io.to(datos.id_usuario_destino).emit('archivo_respuesta', datos);
     });
 });
 
