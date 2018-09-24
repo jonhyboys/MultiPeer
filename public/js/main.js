@@ -1,35 +1,23 @@
 'use strict';
+import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
 (function() {
     var glob_nombre_sala = '';
     var glob_nombre_usuario = '';
     var glob_error = 0;
-    var pcConfig = {
-        'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }],
-        mandatory: { OfferToReceiveAudio: true }
-    };
     var pcs = new Array(),
         pc_iniciador,
         mi_socket_id = 0,
-        glob_local_stream,
         glob_es_iniciador = false,
         socket;
     //Compartir Archivos
-    const BYTES_POR_PEDAZO = 1200;
     var usuarios_a_compartir,
         archivo_a_compartir;
-    var archivo_seleccionado,
-        pedazo_actual,
-        lector_archivo = new FileReader(),
-        ids_enviar;
-    //Recibir archivos
-    var archivo_entrante_informacion;
-    var archivo_entrante_datos;
-    var bytes_recibidos;
-    var descarga_en_progreso = false;
 
     $(document).ready(function() {
         socket = io();
-        $('#txt-nombre-sala, #txt-nombre-usuario').focus(enfocar_caja_texto);
+        $('#txt-nombre-sala, #txt-nombre-usuario').focus(function() {
+            $(this).next().removeClass('error');
+        });
         $('#btn-conectar').click(function(evt) {
             evt.preventDefault();
             $('#msj-sala-llena').addClass('hide');
@@ -91,7 +79,7 @@
             $('#li-nombre-usuario').html('<i class="fas fa-user"></i>' + glob_nombre_usuario);
             glob_es_iniciador = true;
             mi_socket_id = datos.id;
-            pc_iniciador = new conexion(0, false);
+            pc_iniciador = new ConexionRTC(glob_nombre_sala, mi_socket_id, 0, socket, false, true);
         });
         socket.on('agregado_a_sala', function(datos) {
             $('#inicio').toggleClass('hide');
@@ -107,7 +95,7 @@
                     '<i class="fa fa-share-alt" aria-hidden="true" id="share-' + datos.ids_conectados[x] + '"></i>' +
                     '</li>');
                 $('<video id="' + datos.ids_conectados[x] + '" autoplay src=""></video>').insertBefore('#contenedor-botones-video');
-                pcs[datos.ids_conectados[x]] = new conexion(datos.ids_conectados[x], true);
+                pcs[datos.ids_conectados[x]] = new ConexionRTC(glob_nombre_sala, mi_socket_id, datos.ids_conectados[x], socket, true, false);
             }
         });
         socket.on('sala_llena', function() { $('#msj-sala-llena').removeClass('hide'); });
@@ -125,29 +113,20 @@
                     '</li>');
             $('<video id="' + datos.nuevo_id + '" autoplay src=""></video>').insertBefore('#contenedor-botones-video');
             if (glob_es_iniciador && pc_iniciador != undefined) {
-                glob_es_iniciador = false;
-                pc_iniciador.socket_id_destino = datos.nuevo_id;
-                pc_iniciador.cliente.addStream(glob_local_stream);
-                pc_iniciador.cliente.onicecandidate = enviar_candidato.bind(null, pc_iniciador);
-                pc_iniciador.cliente.ontrack = mostrar_video_remoto.bind(null, pc_iniciador);
-                pc_iniciador.archivo.set_destino(datos.nuevo_id);
+                pc_iniciador.establecer_destino(datos.nuevo_id);
                 pcs[datos.nuevo_id] = pc_iniciador;
                 pc_iniciador = undefined;
+                glob_es_iniciador = false;
             } else {
-                var nueva_conexion = new conexion(datos.nuevo_id, false);
-                pcs[datos.nuevo_id] = nueva_conexion;
+                pcs[datos.nuevo_id] = new ConexionRTC(glob_nombre_sala, mi_socket_id, datos.nuevo_id, socket, false, false);
             }
         });
         socket.on('descripcion', function(datos) {
-            if (datos.descripcion.type == 'offer') {
-                pcs[datos.socket_origen].cliente.setRemoteDescription(datos.descripcion)
-                    .then(crear_respuesta.bind(null, pcs[datos.socket_origen]))
-                    .then(establecer_descripcion_local.bind(null, pcs[datos.socket_origen]))
-                    .then(enviar_descripcion.bind(null, pcs[datos.socket_origen]))
-                    .catch(mostrar_error);
-            } else { pcs[datos.socket_origen].cliente.setRemoteDescription(datos.descripcion).catch(mostrar_error); }
+            pcs[datos.socket_origen].establecer_descripcion_remota(datos.descripcion);
         });
-        socket.on('candidato', function(datos) { pcs[datos.socket_origen].cliente.addIceCandidate(datos.candidato); });
+        socket.on('candidato', function(datos) {
+            pcs[datos.socket_origen].agregar_candidato_remoto(datos.candidato);
+        });
         socket.on('desconectar', function(datos) {
             if (pcs[datos.id] != undefined) {
                 delete pcs[datos.id];
@@ -161,8 +140,8 @@
         });
         socket.on('archivo_respuesta', function(datos) {
             if (datos.respuesta) {
-                pcs[datos.id_usuario].archivo.set_archivo(archivo_a_compartir);
-                pcs[datos.id_usuario].archivo.iniciar();
+                pcs[datos.id_usuario].compartidor_archivos.establecer_archivo(archivo_a_compartir);
+                pcs[datos.id_usuario].compartidor_archivos.iniciar_subida();
             } else {
                 alert('El usuario ' + datos.nombre_usuario + ' no acepto el archivo');
             }
@@ -175,85 +154,6 @@
             });
         }, false);
     });
-
-    function enfocar_caja_texto() { $(this).next().removeClass('error'); }
-
-    function mostrar_video_local(objeto, ofertar, stream) {
-        var video_local = document.getElementById('video-local');
-        stream.getAudioTracks()[0].enabled = false;
-        video_local.srcObject = stream;
-        glob_local_stream = stream;
-        if (!glob_es_iniciador) {
-            pcs[objeto].cliente.addStream(stream);
-            pcs[objeto].cliente.onicecandidate = enviar_candidato.bind(null, pcs[objeto]);
-            if (ofertar) { pcs[objeto].cliente.onnegotiationneeded = crear_oferta.bind(null, pcs[objeto]); }
-            pcs[objeto].cliente.ontrack = mostrar_video_remoto.bind(null, pcs[objeto]);
-        }
-    }
-
-    function conexion(destino, ofertar) {
-        this.socket_id_destino = destino;
-        this.cliente = new RTCPeerConnection(pcConfig);
-        this.canal_datos = this.cliente.createDataChannel(destino);
-        this.archivo = new CompartirArchivo(mi_socket_id, this.canal_datos, destino);
-        navigator.mediaDevices.getUserMedia({ audio: true, video: { width: { ideal: 640 }, height: { ideal: 480 } } })
-            .then(mostrar_video_local.bind(null, this.socket_id_destino, ofertar))
-            .catch(mostrar_error);
-        this.canal_datos.onmessage = recibir_datos;
-        this.canal_datos.onopen = function() {
-            console.log("datachannel open");
-        };
-
-        this.canal_datos.onclose = function() {
-            console.log("datachannel close");
-        };
-        this.canal_datos.onerror = function(event) {
-            console.log(event.message);
-        };
-        this.cliente.ondatachannel = canal_nuevo.bind(null, this.canal_datos);
-    }
-
-    function canal_nuevo(objeto, evt) {
-        objeto = evt.channel;
-        objeto.onmessage = recibir_datos;
-    }
-
-    function mostrar_video_remoto(objeto, evt) {
-        var video_remoto = document.getElementById(objeto.socket_id_destino);
-        video_remoto.srcObject = evt.streams[0];
-    }
-
-    function enviar_candidato(objeto, evt) {
-        if (evt.candidate) {
-            socket.emit('candidato', {
-                nombre_sala: glob_nombre_sala,
-                socket_destino: objeto.socket_id_destino,
-                socket_origen: mi_socket_id,
-                candidato: evt.candidate
-            });
-        }
-    }
-
-    function crear_oferta(objeto, evt) {
-        objeto.cliente.createOffer().then(establecer_descripcion_local.bind(null, objeto))
-            .then(enviar_descripcion.bind(null, objeto))
-            .catch(mostrar_error);
-    }
-
-    function establecer_descripcion_local(objeto, oferta) { return objeto.cliente.setLocalDescription(oferta); }
-
-    function enviar_descripcion(objeto, evt) {
-        socket.emit('descripcion', {
-            nombre_sala: glob_nombre_sala,
-            socket_origen: mi_socket_id,
-            socket_destino: objeto.socket_id_destino,
-            descripcion: objeto.cliente.localDescription
-        });
-    }
-
-    function mostrar_error(error) { console.log(error.name + ': ' + error.message); }
-
-    function crear_respuesta(objeto, evt) { return objeto.cliente.createAnswer(); }
 
     function pedir_confirmacion_envio() {
         for (var i = 0; i < usuarios_a_compartir.length; i++) {
@@ -286,47 +186,5 @@
             }
         }
         $('#selector-archivos').click();
-    }
-
-    function recibir_datos(evt) {
-        if (descarga_en_progreso === false) {
-            iniciar_descarga(evt.data);
-        } else {
-            continuar_descarga(evt.data);
-        }
-    }
-
-    function iniciar_descarga(data) {
-        archivo_entrante_informacion = JSON.parse(data.toString());
-        archivo_entrante_datos = [];
-        bytes_recibidos = 0;
-        descarga_en_progreso = true;
-        $('#share-' + archivo_entrante_informacion.id_usuario).parent().append('<label>Recibiendo...</label><progress max="' + archivo_entrante_informacion.tamano_archivo + '" value="0"></progress>');
-    }
-
-    function continuar_descarga(data) {
-        bytes_recibidos += data.byteLength;
-        archivo_entrante_datos.push(data);
-        $('#share-' + archivo_entrante_informacion.id_usuario).next().next().val(bytes_recibidos);
-        if (bytes_recibidos === archivo_entrante_informacion.tamano_archivo) { terminar_descarga(); }
-    }
-
-    function terminar_descarga() {
-        descarga_en_progreso = false;
-        var blob = new window.Blob(archivo_entrante_datos);
-        var anchor = document.createElement('a');
-
-        $('#share-' + archivo_entrante_informacion.id_usuario).next().remove();
-        $('#share-' + archivo_entrante_informacion.id_usuario).next().remove();
-
-        anchor.href = URL.createObjectURL(blob);
-        anchor.download = archivo_entrante_informacion.nombre_archivo;
-        anchor.textContent = 'XXXXXXX';
-
-        if (anchor.click) { anchor.click(); } else {
-            var evt = document.createEvent('MouseEvents');
-            evt.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-            anchor.dispatchEvent(evt);
-        }
     }
 })();
