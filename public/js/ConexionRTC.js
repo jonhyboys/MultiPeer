@@ -8,7 +8,8 @@ const configuracion_video = {
         },
         height: {
             ideal: 480
-        }
+        },
+        facingMode: "user"
     }
 };
 const configuracion_conexion = {
