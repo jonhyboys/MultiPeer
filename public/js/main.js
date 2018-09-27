@@ -15,6 +15,11 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
 
     $(document).ready(function() {
         socket = io();
+        $('#mostrar-lista-movil').click(function() {
+            $('#contenedor-usuarios-conectados').toggleClass('visible');
+            $(this).toggleClass('fa-chevron-circle-left');
+            $(this).toggleClass('fa-chevron-circle-right');
+        });
         $('#txt-nombre-sala, #txt-nombre-usuario').focus(function() {
             $(this).next().removeClass('error');
         });

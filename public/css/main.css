@@ -164,6 +164,16 @@ header i {
     color: #0099CC;
 }
 
+#mostrar-lista-movil {
+    color: #0099CC;
+    display: none;
+    font-size: 30px;
+    position: absolute;
+    right: 1vw;
+    top: 50vh;
+    z-index: 100;
+}
+
 #contenedor-videos {
     float: left;
     height: 85vh;
@@ -362,23 +372,6 @@ video {
     width: 100%;
 }
 
-
-/*
-@media only screen and (max-width: 1350px) {
-    #contenedor-videos {
-        width: 75%;
-    }
-    #contenedor-chat {
-        width: 24%;
-    }
-}
-
-@media only screen and (max-width: 1024px) {
-    header>ul {
-        font-size: 15px;
-    }
-}*/
-
 @media only screen and (max-width: 768px) {
     header {
         height: 4vh;
@@ -400,7 +393,11 @@ video {
     #li-desconectar::after {
         content: "";
     }
+    #mostrar-lista-movil {
+        display: block;
+    }
     #contenedor-videos {
+        float: none;
         height: 40vh;
         margin: 0 auto;
         width: 100vw;
@@ -414,7 +411,8 @@ video {
         display: none;
     }
     #contenedor-chat {
-        height: 40vh;
+        float: none;
+        height: 56vh;
         margin: 0 auto;
         width: 100vw;
     }
@@ -424,7 +422,7 @@ video {
     }
     #contenedor-chat ul {
         font-size: 10px;
-        height: 35vh;
+        height: 42vh;
     }
     #contenedor-controles-chat {
         height: 10vh;
@@ -437,33 +435,19 @@ video {
         text-indent: 5px;
         width: 90vw;
     }
+    #contenedor-controles-chat div {
+        line-height: 6vh;
+        margin-right: 3vw;
+    }
     #contenedor-usuarios-conectados {
         display: none;
     }
+    #contenedor-usuarios-conectados.visible {
+        display: block;
+        float: none;
+        height: 96vh;
+        position: absolute;
+        top: 4vh;
+        width: 100vw;
+    }
 }
-
-
-/*
-@media only screen and (max-width: 414px) {
-    form {
-        min-width: 260px;
-    }
-    header>ul {
-        font-size: 12px;
-    }
-    header>ul>li {
-        margin: 0 1px;
-    }
-    #contenedor-videos {
-        float: none;
-        width: 100%;
-    }
-    video {
-        width: 48%;
-    }
-    #contenedor-chat {
-        float: none;
-        margin: auto;
-        width: 98%;
-    }
-}*/
