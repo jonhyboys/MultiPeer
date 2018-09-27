@@ -16,7 +16,7 @@ class CompartirArchivo {
     establecer_archivo(archivo) {
         this.archivo = archivo;
     }
-    establecer_destino(destino) {
+    establecer_destino(dst) {
         this.id_destino = dst;
     }
     iniciar_subida() {

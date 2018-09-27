@@ -21,6 +21,7 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
         $('#btn-conectar').click(function(evt) {
             evt.preventDefault();
             $('#msj-sala-llena').addClass('hide');
+            $('#msj-usuario-existe').addClass('hide');
             glob_nombre_sala = $('#txt-nombre-sala').val();
             glob_nombre_usuario = $('#txt-nombre-usuario').val();
             if (glob_nombre_sala == '') {
@@ -77,8 +78,8 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
             $('#principal').toggleClass('hide');
             $('#li-nombre-sala').html('<i class="fas fa-users"></i>' + glob_nombre_sala);
             $('#li-nombre-usuario').html('<i class="fas fa-user"></i>' + glob_nombre_usuario);
-            glob_es_iniciador = true;
             mi_socket_id = datos.id;
+            glob_es_iniciador = true;
             pc_iniciador = new ConexionRTC(glob_nombre_sala, mi_socket_id, 0, socket, false, true);
         });
         socket.on('agregado_a_sala', function(datos) {
@@ -87,8 +88,7 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
             $('#li-nombre-sala').html('<i class="fas fa-users"></i>' + glob_nombre_sala);
             $('#li-nombre-usuario').html('<i class="fas fa-user"></i>' + glob_nombre_usuario);
             mi_socket_id = datos.id;
-            var x;
-            for (x = 0; x < datos.ids_conectados.length; x++) {
+            for (let x = 0; x < datos.ids_conectados.length; x++) {
                 $('#lista-usuarios-conectados').
                 append('<li data-nombre="' + datos.usuarios_conectados[x] + '">' +
                     '<p>' + datos.usuarios_conectados[x] + '</p>' +
@@ -100,11 +100,6 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
         });
         socket.on('sala_llena', function() { $('#msj-sala-llena').removeClass('hide'); });
         socket.on('usuario_existe', function() { $('#msj-usuario-existe').removeClass('hide'); });
-        socket.on('mensaje', function(datos) {
-            $('#lista-mensajes')
-                .append('<li><strong>' + datos.nombre_usuario + ':</strong> ' + datos.mensaje + '</li>')
-                .scrollTop(1000);
-        });
         socket.on('usuario_agregado', function(datos) {
             $('#lista-usuarios-conectados')
                 .append('<li data-nombre=' + datos.nuevo_usuario + '>' +
@@ -114,6 +109,7 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
             $('<video id="' + datos.nuevo_id + '" autoplay src=""></video>').insertBefore('#contenedor-botones-video');
             if (glob_es_iniciador && pc_iniciador != undefined) {
                 pc_iniciador.establecer_destino(datos.nuevo_id);
+                pc_iniciador.compartidor_archivos.establecer_destino(datos.nuevo_id);
                 pcs[datos.nuevo_id] = pc_iniciador;
                 pc_iniciador = undefined;
                 glob_es_iniciador = false;
@@ -133,6 +129,11 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
                 $('#' + datos.id).remove();
                 $('#lista-usuarios-conectados li[data-nombre="' + datos.nombre + '"]').remove();
             }
+        });
+        socket.on('mensaje', function(datos) {
+            $('#lista-mensajes')
+                .append('<li><strong>' + datos.nombre_usuario + ':</strong> ' + datos.mensaje + '</li>')
+                .scrollTop(1000);
         });
         socket.on('archivo', function(datos) {
             var x = confirm("El usuario " + datos.nombre_usuario + " está intentando enviarle un archivo, desea recibirlo?");
@@ -166,7 +167,7 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
         if (lista_archivos_seleccionados.length > 1) {
             alert('Solo puede compartir un archivo a la vez. . .');
         } else if (lista_archivos_seleccionados.length == 0) {
-            alert('Debe seleccionar un archiva a compartir. . .');
+            alert('Debe seleccionar un archivo a compartir. . .');
         } else {
             archivo_a_compartir = lista_archivos_seleccionados[0];
             pedir_confirmacion_envio();

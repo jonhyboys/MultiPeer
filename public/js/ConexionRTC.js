@@ -33,18 +33,11 @@ class ConexionRTC {
         this.configurar_canal_datos();
     }
     configurar_canal_datos() {
-        this.canal_datos.onmessage = evt => this.compartidor_archivos.recibir_datos(evt);
-        this.canal_datos.onopen = function() {
-            console.log("Canal de datos abierto. . .");
-        };
-        this.canal_datos.onclose = function() {
-            console.log("Canal de datos Cerrado");
-        };
-        this.canal_datos.onerror = this.mostrar_error;
         this.conexion.ondatachannel = evt => {
             this.canal_datos = evt.channel;
             this.canal_datos.onmessage = evt => this.compartidor_archivos.recibir_datos(evt);
         };
+        this.canal_datos.onerror = this.mostrar_error;
     }
     establecer_destino(destino) {
         this.id_destino = destino;
@@ -80,7 +73,6 @@ class ConexionRTC {
     enviar_candidato_local(evt) {
         if (evt.candidate) {
             this.socket.emit('candidato', {
-                nombre_sala: this.nombre_sala,
                 socket_destino: this.id_destino,
                 socket_origen: this.mi_id,
                 candidato: evt.candidate
@@ -116,7 +108,6 @@ class ConexionRTC {
     }
     enviar_descripcion() {
         this.socket.emit('descripcion', {
-            nombre_sala: this.nombre_sala,
             socket_origen: this.mi_id,
             socket_destino: this.id_destino,
             descripcion: this.conexion.localDescription

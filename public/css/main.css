@@ -117,7 +117,7 @@ form div p.error {
 
 #principal {
     background: #5f6062;
-    overflow: auto;
+    overflow: hidden;
 }
 
 header {
