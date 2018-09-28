@@ -408,8 +408,13 @@ video {
         height: 20vh;
     }
     #contenedor-botones-video {
-        bottom: 57vh;
-        width: 100vw;
+        bottom: 20vh;
+        right: 5vw;
+        top: 20vh;
+        width: 20vw;
+    }
+    #btn-video-control {
+        margin-bottom: 15px;
     }
     #contenedor-botones-video i {
         font-size: 15px;
