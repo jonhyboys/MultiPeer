@@ -408,7 +408,11 @@ video {
         height: 20vh;
     }
     #contenedor-botones-video {
-        display: none;
+        bottom: 57vh;
+        width: 100vw;
+    }
+    #contenedor-botones-video i {
+        font-size: 15px;
     }
     #contenedor-chat {
         float: none;
@@ -446,8 +450,9 @@ video {
         display: block;
         float: none;
         height: 96vh;
-        position: absolute;
+        position: fixed;
         top: 4vh;
         width: 100vw;
+        z-index: 11;
     }
 }
