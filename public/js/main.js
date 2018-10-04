@@ -1,16 +1,16 @@
 'use strict';
 import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
 (function() {
-    var glob_nombre_sala = '';
-    var glob_nombre_usuario = '';
-    var glob_error = 0;
-    var pcs = new Array(),
+    let glob_nombre_sala = '';
+    let glob_nombre_usuario = '';
+    let glob_error = 0;
+    let pcs = new Array(),
         pc_iniciador,
         mi_socket_id = 0,
         glob_es_iniciador = false,
         socket;
     //Compartir Archivos
-    var usuarios_a_compartir,
+    let usuarios_a_compartir,
         archivo_a_compartir;
 
     $(document).ready(function() {
@@ -47,12 +47,12 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
             });
         });
         $('#btn-enviar').click(function() {
-            var _mensaje = $('#txt-mensaje-enviar').val();
+            let _mensaje = $('#txt-mensaje-enviar').val();
             if (_mensaje != '') {
                 $('#lista-mensajes')
                     .append('<li><strong>' + glob_nombre_usuario + ':</strong> ' + _mensaje + '</li>')
                     .scrollTop(1000);
-                var obj_msg = {
+                let obj_msg = {
                     nombre_sala: glob_nombre_sala,
                     nombre_usuario: glob_nombre_usuario,
                     mensaje: _mensaje
@@ -141,12 +141,10 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
                 .scrollTop(1000);
         });
         socket.on('archivo', function(datos) {
-            console.log(datos);
-            var x = confirm("El usuario " + datos.nombre_usuario + " está intentando enviarle un archivo, desea recibirlo?");
+            let x = confirm("El usuario " + datos.nombre_usuario + " está intentando enviarle un archivo, desea recibirlo?");
             socket.emit('archivo_respuesta', { id_usuario_destino: datos.id_usuario, id_usuario: mi_socket_id, nombre_usuario: glob_nombre_usuario, respuesta: x });
         });
         socket.on('archivo_respuesta', function(datos) {
-            console.log(datos);
             if (datos.respuesta) {
                 pcs[datos.id_usuario].compartidor_archivos.establecer_archivo(archivo_a_compartir);
                 pcs[datos.id_usuario].compartidor_archivos.iniciar_subida();
@@ -164,39 +162,34 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
     });
 
     function pedir_confirmacion_envio() {
-        console.log('confirmacion');
-        console.log(usuarios_a_compartir);
-        for (var i = 0; i < usuarios_a_compartir.length; i++) {
+        for (let i = 0; i < usuarios_a_compartir.length; i++) {
             socket.emit('archivo', { id_usuario_destino: usuarios_a_compartir[i], id_usuario: mi_socket_id, nombre_usuario: glob_nombre_usuario });
         }
     }
 
     function seleccionar_archivo(evt) {
-        var lista_archivos_seleccionados = evt.target.files;
+        let lista_archivos_seleccionados = evt.target.files;
         if (lista_archivos_seleccionados.length > 1) {
             alert('Solo puede compartir un archivo a la vez. . .');
         } else if (lista_archivos_seleccionados.length == 0) {
             alert('Debe seleccionar un archivo a compartir. . .');
         } else {
             archivo_a_compartir = lista_archivos_seleccionados[0];
-            console.log(archivo_a_compartir);
             pedir_confirmacion_envio();
         }
     }
 
     function mostrar_selector_archivos() {
-        usuarios_a_compartir = [];
-        var tipo = $(this).attr('id').replace('share-', '');
+        let tipo = $(this).attr('id').replace('share-', '');
         if (tipo != 'todos') {
             usuarios_a_compartir.push(tipo);
         } else {
-            var lista = $('#contenedor-usuarios-conectados li');
-            for (var i = 0; i < lista.length; i++) {
-                var destino = $(lista[i]).find('i').attr('id').replace('share-', '');
+            let lista = $('#contenedor-usuarios-conectados li');
+            for (let i = 0; i < lista.length; i++) {
+                let destino = $(lista[i]).find('i').attr('id').replace('share-', '');
                 usuarios_a_compartir.push(destino);
             }
         }
-        console.log(usuarios_a_compartir);
         $('#selector-archivos').click();
     }
 })();
