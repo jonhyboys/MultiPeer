@@ -1,16 +1,16 @@
 'use strict';
 import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
 (function() {
-    var glob_nombre_sala = '';
-    var glob_nombre_usuario = '';
-    var glob_error = 0;
-    var pcs = new Array(),
+    let glob_nombre_sala = '';
+    let glob_nombre_usuario = '';
+    let glob_error = 0;
+    let pcs = new Array(),
         pc_iniciador,
         mi_socket_id = 0,
         glob_es_iniciador = false,
         socket;
     //Compartir Archivos
-    var usuarios_a_compartir,
+    let usuarios_a_compartir,
         archivo_a_compartir;
 
     $(document).ready(function() {
@@ -180,6 +180,7 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
     }
 
     function mostrar_selector_archivos() {
+        usuarios_a_compartir = [];
         let tipo = $(this).attr('id').replace('share-', '');
         if (tipo != 'todos') {
             usuarios_a_compartir.push(tipo);
