@@ -20,14 +20,18 @@ class CompartirArchivo {
         this.id_destino = dst;
     }
     iniciar_subida() {
-        $('#share-' + this.id_destino).parent().append('<label>Enviando...</label><progress max="' + this.archivo.size + '" value="0"></progress>');
-        this.canal_datos.send(JSON.stringify({
-            nombre_archivo: this.archivo.name,
-            tamano_archivo: this.archivo.size,
-            id_usuario: this.mi_id
-        }));
-        this.lector.onload = ep => this.enviar_pedazo();
-        this.leer_nuevo_pedazo();
+        if (!descarga_en_progreso) {
+            $('#share-' + this.id_destino).parent().append('<label>Enviando...</label><progress max="' + this.archivo.size + '" value="0"></progress>');
+            this.canal_datos.send(JSON.stringify({
+                nombre_archivo: this.archivo.name,
+                tamano_archivo: this.archivo.size,
+                id_usuario: this.mi_id
+            }));
+            this.lector.onload = ep => this.enviar_pedazo();
+            this.leer_nuevo_pedazo();
+        } else {
+            alert('Otro archivo se est[a enviando, espere que termine ese envio e intente nuevamente.');
+        }
     }
     enviar_pedazo() {
         this.canal_datos.send(this.lector.result);
@@ -79,6 +83,7 @@ class CompartirArchivo {
         enlace.download = archivo_entrante_informacion.nombre_archivo;
         enlace.textContent = 'XXXXXXX';
         enlace.click();
+        enlace.remove();
     }
 }
 
