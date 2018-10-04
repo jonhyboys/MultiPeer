@@ -20,9 +20,9 @@ class CompartirArchivo {
         this.id_destino = dst;
     }
     iniciar_subida() {
-        this.lector = new FileReader();
         if (!descarga_en_progreso) {
-            console.log($('#share-' + this.id_destino).parent());
+            this.lector = new FileReader();
+            this.pedazo = 0;
             $('#share-' + this.id_destino).parent().append('<label>Enviando...</label><progress max="' + this.archivo.size + '" value="0"></progress>');
             this.canal_datos.send(JSON.stringify({
                 nombre_archivo: this.archivo.name,
