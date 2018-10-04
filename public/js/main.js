@@ -77,7 +77,7 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
         });
         $('#li-desconectar').click(function() { location.reload(); });
         $('#contenedor-usuarios-conectados').on('click', 'i', mostrar_selector_archivos);
-        $('#selector-archivos').change(seleccionar_archivo);
+        $('#selector-archivos').click(seleccionar_archivo);
         socket.on('sala_creada', function(datos) {
             $('#inicio').toggleClass('hide');
             $('#principal').toggleClass('hide');
