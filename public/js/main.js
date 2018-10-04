@@ -77,7 +77,7 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
         });
         $('#li-desconectar').click(function() { location.reload(); });
         $('#contenedor-usuarios-conectados').on('click', 'i', mostrar_selector_archivos);
-        $('#selector-archivos').click(seleccionar_archivo);
+        $('#selector-archivos').change(seleccionar_archivo);
         socket.on('sala_creada', function(datos) {
             $('#inicio').toggleClass('hide');
             $('#principal').toggleClass('hide');
@@ -177,6 +177,7 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
             archivo_a_compartir = lista_archivos_seleccionados[0];
             pedir_confirmacion_envio();
         }
+        $(this).val('');
     }
 
     function mostrar_selector_archivos() {
