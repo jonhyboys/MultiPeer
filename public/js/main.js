@@ -141,10 +141,12 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
                 .scrollTop(1000);
         });
         socket.on('archivo', function(datos) {
+            console.log(datos);
             var x = confirm("El usuario " + datos.nombre_usuario + " está intentando enviarle un archivo, desea recibirlo?");
             socket.emit('archivo_respuesta', { id_usuario_destino: datos.id_usuario, id_usuario: mi_socket_id, nombre_usuario: glob_nombre_usuario, respuesta: x });
         });
         socket.on('archivo_respuesta', function(datos) {
+            console.log(datos);
             if (datos.respuesta) {
                 pcs[datos.id_usuario].compartidor_archivos.establecer_archivo(archivo_a_compartir);
                 pcs[datos.id_usuario].compartidor_archivos.iniciar_subida();
@@ -162,6 +164,8 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
     });
 
     function pedir_confirmacion_envio() {
+        console.log('confirmacion');
+        console.log(usuarios_a_compartir);
         for (var i = 0; i < usuarios_a_compartir.length; i++) {
             socket.emit('archivo', { id_usuario_destino: usuarios_a_compartir[i], id_usuario: mi_socket_id, nombre_usuario: glob_nombre_usuario });
         }
@@ -175,6 +179,7 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
             alert('Debe seleccionar un archivo a compartir. . .');
         } else {
             archivo_a_compartir = lista_archivos_seleccionados[0];
+            console.log(archivo_a_compartir);
             pedir_confirmacion_envio();
         }
     }
@@ -191,6 +196,7 @@ import { glob_local_stream, ConexionRTC } from './ConexionRTC.js';
                 usuarios_a_compartir.push(destino);
             }
         }
+        console.log(usuarios_a_compartir);
         $('#selector-archivos').click();
     }
 })();
